@@ -906,7 +906,7 @@ Function Add-AD_UserToGroup {
         Try {
             Clear-Output
             $UserAccount = $ComboBox_Users.Text.ToString()
-            $List = $AD_Groups | Out-GridView -PassThru -Title "Select Group(s)"
+            $List = $AD_Groups.SamAccountName | Out-GridView -PassThru -Title "Select Group(s)"
             Foreach($Group in $List) { Add-ADGroupMember -Identity $Group -Members $UserAccount -Confirm:$false } 
             $TextBox_Output.AppendText("$UserAccount has now been added to selected Groups")
         } Catch { Write-OutError }
@@ -921,7 +921,7 @@ Function Copy-AD_UserMemberships {
         } Else {
         Try {
             $UserAccount = $ComboBox_Users.Text.ToString()
-            $CopyUser = $AD_Users | Sort-Object | Out-GridView -PassThru -Title "Select Account" 
+            $CopyUser = $AD_Users.SamAccountName| Sort-Object | Out-GridView -PassThru -Title "Select Account" 
             $UserPrompt = new-object -comobject wscript.shell
             $Answer = $UserPrompt.popup("        Copy all Groups form $CopyUser?", 0, "Copy",0x4 + 0x20)
             IF ($Answer -eq 6) {
@@ -1116,7 +1116,7 @@ Function Copy-AD_ComputerMembers {
         } Else {
         Try {
             $ComputerAccount = $ComboBox_Computers.Text.ToString()
-            $CopyComputer = $AD_Computers | Sort-Object | Out-GridView -PassThru -Title "Select Account" 
+            $CopyComputer = $AD_Computers.name | Sort-Object | Out-GridView -PassThru -Title "Select Account" 
             $UserPrompt = new-object -comobject wscript.shell
             $Answer = $UserPrompt.popup("        Copy all Groups form $CopyComputer?", 0, "Copy", 0x4 + 0x20)
             IF ($Answer -eq 6) {
@@ -1141,7 +1141,7 @@ Function Add-AD_ComputerToGroup {
         Try {
             Clear-Output
             $ComputerAccount = $ComboBox_Computers.Text.ToString()
-            $List = $AD_Groups | Out-GridView -PassThru -Title "Select Group(s)"
+            $List = $AD_Groups.SamAccountName | Out-GridView -PassThru -Title "Select Group(s)"
             Foreach($Group in $List) { Add-ADGroupMember -Identity $Group -Members "$ComputerAccount$" -Confirm:$false } 
             $TextBox_Output.AppendText("$ComputerAccount has now been added to selected Groups")
         } Catch { Write-OutError }
