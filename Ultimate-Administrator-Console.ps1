@@ -1,13 +1,17 @@
-
 <#
 
 Ultimate Administrator Console
 
 .SYNOPSIS
+The ultimate resource for system administration
 
 .DESCRIPTION
+This is a generalised tool created mostly in PowerShell to provide extended functionality too Active Directory exchange and other services and systems
 
 .NOTES
+Exchange an Active Directory tabs will save XML data “$env:PUBLIC\Ultimate Administrator Console” This is to recall data quickly as pulling this information can take a minute or so.
+
+please see YouTube channel under about for full tutorial https://www.youtube.com/channel/UC8fXbspZUdX4MUFlBIueuNw
 
 Author Theo bird (Bedlem55)
   
@@ -30,12 +34,10 @@ $code = @"
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
-
 namespace System
 {
     public class IconExtractor
     {
-
         public static Icon Extract(string file, int number, bool largeIcon)
         {
         IntPtr large;
@@ -49,11 +51,9 @@ namespace System
         {
         return null;
     }
-
 }
 [DllImport("Shell32.dll", EntryPoint = "ExtractIconExW", CharSet = CharSet.Unicode, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
 private static extern int ExtractIconEx(string sFile, int iIndex, out IntPtr piLargeVersion, out IntPtr piSmallVersion, int amountIcons);
-
     }
 }
 "@
@@ -64,7 +64,7 @@ Add-Type -TypeDefinition $code -ReferencedAssemblies System.Drawing
 # Variables
 #===========================================================
 
-$Exchangeserver = If (test-path "$env:PUBLIC\Ultimate Administrator Console\Exchange.xml") { Import-Clixml "$env:PUBLIC\Ultimate Administrator Console\Exchange.xml" }
+$Exchangeserver = IF (test-path "$env:PUBLIC\Ultimate Administrator Console\Exchange.xml") { Import-Clixml "$env:PUBLIC\Ultimate Administrator Console\Exchange.xml" }
 
 # Icons
 $Icon_OK = [System.IconExtractor]::Extract("Shell32.dll", 302, $true)
@@ -74,7 +74,8 @@ $About =  @"
 
     Author:      Theo Bird (Bedlem55)
     Github:      https://github.com/Bedlem55/Ultimate-Administrator-Console
-    YouTube:     
+    YouTube:     https://www.youtube.com/channel/UC8fXbspZUdX4MUFlBIueuNw
+    linkedin:    https://www.linkedin.com/in/theo-bird-84740538/
 
 "@
 
@@ -168,7 +169,7 @@ Function Set-Opacity {
 
 Function Save-settings {
 
-   Try {
+   TRY {
         
         New-Object PSObject -Property @{
 
@@ -185,7 +186,7 @@ Function Save-settings {
     BackColourBlue    = $TrackBar_BackColourBlue.Value    
         
         } | Export-Clixml "$env:PUBLIC\Ultimate Administrator Console\Settings.xml"
-    } Catch { Write-OutError }
+    } CATCH { Write-OutError }
 }
 
 # Clear output 
@@ -266,10 +267,10 @@ Function Copy-Notepad {
 # Runs Commands typed into the TextBox_Output
 Function Start-OutPutCommand {
     $Command = $TextBox_Output.text
-        try {
+        TRY {
         Clear-Output
         $TextBox_Output.Text = Invoke-Expression $Command -ErrorAction Stop | Out-String
-    } Catch { Write-OutError } 
+    } CATCH { Write-OutError } 
 }
 
 Function Set-StatusBarReady {
@@ -278,24 +279,24 @@ Function Set-StatusBarReady {
 
 Function Restart-PC{
     
-    try {
+    TRY {
     $UserPrompt = new-object -comobject wscript.shell
     $Answer = $UserPrompt.popup("   Restart PC?", 0, "  Restart PC", 0x4 + 0x30)
         IF ($Answer -eq 6) {
             Restart-Computer -Force
-        } Else { Write-Cancelled }
-    } Catch { Write-OutError }
+        } ELSE { Write-Cancelled }
+    } CATCH { Write-OutError }
 }
 
 Function Stop_PC {
 
-    try {
+    TRY {
     $UserPrompt = new-object -comobject wscript.shell
     $Answer = $UserPrompt.popup("   Shutdown PC?", 0, "   Shutdown PC", 0x4 + 0x30)
         IF ($Answer -eq 6) {
             Stop-Computer -Force
-        } Else { Write-Cancelled }
-    } Catch { Write-OutError }
+        } ELSE { Write-Cancelled }
+    } CATCH { Write-OutError }
 
 }
 
@@ -314,9 +315,9 @@ Function Start-WindowsApp {
         $TextBox_Output.AppendText("No App Selected") 
     }
 
-    Else { 
-      try { 
-        switch ($ListBox_windows.SelectedItem) {
+    ELSE { 
+      TRY { 
+        SWITCH ($ListBox_windows.SelectedItem) {
 
             'Backup Credentials'                    { Start-Process credwiz.exe -ErrorAction Stop    }
             'Clean Disk Manager'                    { cleanmgr.exe }
@@ -331,7 +332,7 @@ Function Start-WindowsApp {
             'Invoke Group policy update'            { Start-Gpupdate }
             'Network Properties'                    { Start-Process control -ArgumentList netconnections -ErrorAction Stop}
             'Optional Features'                     { Start-Process OptionalFeatures.exe -ErrorAction Stop }
-            'Registry Editor'                       { Start-Process regedit -ErrorAction Stop }
+            'RegisTRY Editor'                       { Start-Process regedit -ErrorAction Stop }
             'Reliability Monitor'                   { Start-Process perfmon /rel -ErrorAction Stop}
             'Remote Desktop'                        { Start-Process mstsc.exe -ErrorAction Stop}
             'Services'                              { Start-Process services.msc -ErrorAction Stop }
@@ -345,7 +346,7 @@ Function Start-WindowsApp {
             'Windows Update'                        { Start-Process control -ArgumentList update -ErrorAction Stop }
 
             } 
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
@@ -357,33 +358,35 @@ Function start_windowAdminapp {
         $TextBox_Output.AppendText("No App Selected") 
     }
 
-    Else { 
-        try { 
+    ELSE { 
+        TRY { 
             
             $Tool = $ListBox_WindowServer.SelectedItem
             $Path = (Get-ChildItem "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Administrative Tools" | Where-Object{$_.BaseName -like $Tool}).FullName 
             Invoke-Item -Path $Path -ErrorAction SilentlyContinue
 
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
+# Starts selected control panel item 
 Function Start-ControlPanelItem {
     IF ($ListBox_ControlPanel.SelectedItem -eq $null) {
         Clear-Output
         $TextBox_Output.AppendText("No control panel item selected") } 
-    Else {  
-        Try{
+    ELSE {  
+        TRY{
             Show-ControlPanelItem -Name $ListBox_ControlPanel.SelectedItem -ErrorAction Stop
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 } 
 
+# Installs all are missing available off Rstat tools 
 Function Add-AllRsatTools {
     $UserPrompt = new-object -comobject wscript.shell
     $Answer = $UserPrompt.popup($RSAT_info, 0, "  Install RSAT", 0x4 + 0x30)
     IF ($Answer -eq 6) {
-        Try {
+        TRY {
         $StatusBarLabel.text = "  Installing RSAT"
         Start-Sleep 0.5
     
@@ -396,49 +399,52 @@ Function Add-AllRsatTools {
                 $TextBox_Output.Text = "RSAT Features are already Intalled" 
                 Set-StatusBarReady
 
-            } Else {
+            } ELSE {
     
                 # Open optionalfeatures - to show install progress 
                 Start-Process "ms-settings:optionalfeatures"
         
                 # Install all Rsat items
-                foreach($Object in $RSAT) {Add-WindowsCapability -name $Object -Online} 
+                FOREACH($Object in $RSAT) {Add-WindowsCapability -name $Object -Online} 
                 
                 # Add Items to listbox
                 $Admin_Tools = Get-ChildItem "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Administrative Tools" -Recurse | Sort-Object
-                Foreach($Tool in $Admin_Tools.BaseName){[void]$ListBox_WindowServer.Items.Add($Tool)}
+                FOREACH($Tool in $Admin_Tools.BaseName){[void]$ListBox_WindowServer.Items.Add($Tool)}
                 Set-StatusBarReady
                 
                 }
 
-            } Catch {
+            } CATCH {
                 Set-StatusBarReady
                 Write-OutError
             }
                
-        } Else { Write-Cancelled }
+        } ELSE { Write-Cancelled }
 }
 
 
+# Outputs gets-computerinfo to output 
 Function Get-ComputerInfo_Output {
     Clear-Output
     $TextBox_Output.Text = Invoke-Expression "Get-computerinfo" -ErrorAction Stop | Out-String    
 }
 
+# Outputs detailed summary of system information 
 Function Get-SystemInfo_Output {
     Clear-Output
     $TextBox_Output.Text = Invoke-Expression "SystemInfo" -ErrorAction Stop | Out-String    
 }
 
+# Outputs IP configuration 
 Function Get-IpconfigInfo_Output {
     Clear-Output
     $TextBox_Output.Text = Invoke-Expression "Ipconfig /all" -ErrorAction Stop | Out-String    
 }
 
-
+# Start an offline Windows Defender scan 
 Function Start-WindowsDefenderOfflineScan { 
     
-    try {
+    TRY {
         $UserPrompt = new-object -comobject wscript.shell
         $Answer = $UserPrompt.popup("Start offline Windows Defender scan? `n`n Note: this will restart your PC", 0, "Start Scan", 0x4 + 0x30)
             IF ($Answer -eq 6) {
@@ -446,114 +452,121 @@ Function Start-WindowsDefenderOfflineScan {
                 Start-MpWDOScan -ErrorAction Stop | Out-Null
                 $TextBox_Output.AppendText("Starting Scan")
             
-            } Else {Write-Cancelled }
-        } Catch { Write-OutError }
+            } ELSE {Write-Cancelled }
+        } CATCH { Write-OutError }
 }
 
-
+# Start GP update with a restart 
 Function Start-Gpupdate {
 
-    try {
+    TRY {
         $UserPrompt = new-object -comobject wscript.shell
         $Answer = $UserPrompt.popup("Invoke Gpupdate? `n`n Note: this will restart your PC", 0, "Invoke Gpupdate", 0x4 + 0x30)
             IF ($Answer -eq 6) {
                 Start-Process gpupdate -ArgumentList "/force /boot" -ErrorAction Stop  -Wait | Out-Null
-            } Else { Write-Cancelled }
-        } Catch { Write-OutError }
+            } ELSE { Write-Cancelled }
+        } CATCH { Write-OutError }
 }
 
-
+# Creates GodMode folder and opens folder 
+# See for info: https://www.howtogeek.com/402458/enable-god-mode-in-windows-10/
 Function Godmode {
     $path = "$env:PUBLIC\Ultimate Administrator Console.{ED7BA470-8E54-465E-825C-99712043E01C}"
     IF ((Test-path $path) -ne $true) { New-item -Path $path -ItemType Directory }
     Invoke-Item $path 
 } 
 
- 
+ # Restart selected service from list 
 Function Restart-LocalService {
     
-    try {
+    TRY {
         Clear-Output
         $Service =  (Get-Service | Out-GridView -PassThru -Title "Select Service to start").name 
-        Restart-Service -Name $Service -Force -ErrorAction Stop 
-        $TextBox_Output.text = "Starting $Service service" 
+        IF($Service.Length -eq '0')  { Write-OutInfo ; $TextBox_Output.text = "No Service Selected"}
+        ELSE {Restart-Service -Name $Service -Force -ErrorAction Stop ; $TextBox_Output.text = "Starting $Service service" }
     
-    } Catch { Write-OutError }
+    } CATCH { Write-OutError }
 } 
 
+# Stops local service from selected list 
 Function Stop-LocalService {
    
-    try {
+    TRY {
         Clear-Output
         $Service =  (Get-Service | Out-GridView -PassThru -Title "Select Service to stop").name 
-        Stop-Service -Name $Service -Force -ErrorAction Stop 
-        $TextBox_Output.text = "Stopping $Service service" 
+        IF($Service.Length -eq '0')  { Write-OutInfo ; $TextBox_Output.text = "No Service Selected"}
+        ELSE { Stop-Service -Name $Service -Force -ErrorAction Stop  ; $TextBox_Output.text = "Stopping $Service service" }
     
-    } Catch { Write-OutError }
+    } CATCH { Write-OutError }
 } 
 
+# Kills local selected process 
 Function Stop-LocalProcess {
    
-    try {
+    TRY {
         Clear-Output
         $Process =  (Get-Process | Out-GridView -PassThru -Title "Select Process to stop").name 
-        Stop-Process -Name $Process -Force -ErrorAction Stop 
-        $TextBox_Output.text = "Stopping $Process service" 
+        IF($Process.Length -eq '0')  { Write-OutInfo ; $TextBox_Output.text = "No Process Selected"}
+        ELSE { Stop-Process -Name $Process -Force -ErrorAction Stop ; $TextBox_Output.text = "Stopping $Process service" }
     
-    } Catch { Write-OutError }
+    } CATCH { Write-OutError }
 } 
 
-
+# Start ping to specified target 
 Function Start-Ping {
      IF ( $Textbox_Nettools.Text -eq '' ) {
         Clear-Output
         Write-OutInfo
         $TextBox_Output.AppendText("No IP/URI provided")}
-     Else {
+     ELSE {
         $IP_URI = $Textbox_Nettools.Text.ToString()
         $TextBox_Output.text = Invoke-Expression "Ping $IP_URI" -ErrorAction Stop | Out-String
     }
 }
 
+# Runs traceroute to specified 
 Function Start-TraceRoute {
     IF ( $Textbox_Nettools.Text -eq '' ) {
         Clear-Output
         Write-OutInfo
         $TextBox_Output.AppendText("No IP/URI provided")}
-    Else {
+    ELSE {
         $IP_URI = $Textbox_Nettools.Text.ToString()
         $Path = "$env:PUBLIC\TraceRoute$IP_URI.txt"
         Start-Process Powershell -ArgumentList "Start-Transcript -Path $Path ; Test-NetConnection -TraceRoute $IP_URI ; Stop-Transcript ; Invoke-item $path" -Wait
     }
 }
 
+# Does an NS look up to specified 
 Function Get-nslookup {
     IF ( $Textbox_Nettools.Text -eq '' ) {
         Clear-Output
         Write-OutInfo
         $TextBox_Output.AppendText("No IP/URI provided")}
-    Else {
-        Try {
+    ELSE {
+        TRY {
         $IP_URI = $Textbox_Nettools.Text.ToString()
         $TextBox_Output.text = Invoke-Expression "Resolve-DnsName $IP_URI -ErrorAction Stop" | Out-String
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
+# Reset all local network settings 
 Function Reset-Networksettings {
-    Try {
+    TRY {
         $UserPrompt = new-object -comobject wscript.shell
         $Answer = $UserPrompt.popup("Reset all network settings? `n`n Note: this will restart your PC", 0, "Reset Network", 0x4 + 0x30)
         IF ($Answer -eq 6) {
             Clear-Output
             Start-Process "netsh" -ArgumentList "winsock reset" -ErrorAction Stop -Wait 
             Restart-Computer -Force
-        } Else { Write-Cancelled }
-    } Catch { Write-OutError } 
+        } ELSE { Write-Cancelled }
+    } CATCH { Write-OutError } 
 }
 
-
-
+# Start get folder ACL application 
+# This will allow you to export a CSV with all the existing permissions at a folder level 
+# Note This will only read folders that have account has permissions to
 Function Start-GetFolderACL {
 #======================= Assemblys =========================
 Add-Type -AssemblyName system.windows.forms
@@ -574,7 +587,7 @@ Function Run {
 
     [System.Windows.Forms.MessageBox]::Show("No folder selected", "Warning:",0,48) 
     
-    } Else {
+    } ELSE {
 
         $Path = $TextBox_GetFolder.text.tostring()
         IF(Test-Path $Path) {
@@ -586,9 +599,9 @@ Function Run {
         $SaveFile.ShowDialog()
 
         Get-ChildItem -Path $Path -Recurse | Where-Object{$_.psiscontainer}|
-        Get-Acl | foreach {
+        Get-Acl | FOREACH {
         $path = $_.Path
-        $_.Access | ForEach-Object {
+        $_.Access | FOREACH-Object {
             New-Object PSObject -Property @{
                 Folder = $path.Replace("Microsoft.PowerShell.Core\FileSystem::","")
                 Access = $_.FileSystemRights
@@ -598,7 +611,7 @@ Function Run {
                     }
                 }
             } | select-object -Property Folder,User,Access,Control,Inheritance | export-csv $SaveFile.FileName.tostring() -NoTypeInformation -force
-        } Else { [System.Windows.Forms.MessageBox]::Show("No folder selected", "Warning:",0,48) }
+        } ELSE { [System.Windows.Forms.MessageBox]::Show("No folder selected", "Warning:",0,48) }
     }
 }
 
@@ -662,7 +675,8 @@ $Form_GetACL.controls.AddRange(@(
 [void]$Form_GetACL.ShowDialog()
 }
 
-
+# This application leverages the voice synthesiser component of windows 
+# This will allow you to playback and save text to wave file format 
 Function Start-TexttoWave {  
 
 <#
@@ -698,7 +712,7 @@ $About = @'
 '@
 
 $Eva = @'
-Windows Registry Editor Version 5.00
+Windows RegisTRY Editor Version 5.00
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech_OneCore\Voices\Tokens\MSTTS_V110_enUS_EvaM]
 @="Microsoft Eva Mobile - English (United States)"
@@ -762,7 +776,7 @@ Windows Registry Editor Version 5.00
 '@
 
 $Mark = @'
-Windows Registry Editor Version 5.00
+Windows RegisTRY Editor Version 5.00
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_enUS_MarkM]
 @="Microsoft Mark - English (United States)"
@@ -818,7 +832,7 @@ Windows Registry Editor Version 5.00
 $Message = @'
 Enable Eva and Mark system voices? 
 
-Warning: this will modify the system registry.
+Warning: this will modIFy the system regisTRY.
 '@
 
 $OS = @'
@@ -842,10 +856,10 @@ Restart required, restart computer now?
 
 Function PlaySound {
 
-  if ($null -eq $SelectVoiceCB.SelectedItem) {
+  IF ($null -eq $SelectVoiceCB.SelectedItem) {
     [System.Windows.Forms.MessageBox]::Show("No voice selected", "Warning:",0,48) 
   }
-  Else {
+  ELSE {
     $Speak.SetOutputToDefaultAudioDevice() ; 
     $Speak.Rate = ($speed.Value)
     $Speak.Volume = $Volume.Value 
@@ -855,17 +869,17 @@ Function PlaySound {
 }
 
 Function SaveSound {
-  if ($null -eq $SelectVoiceCB.SelectedItem) {
+  IF ($null -eq $SelectVoiceCB.SelectedItem) {
     [System.Windows.Forms.MessageBox]::Show("No voice selected", "Warning:",0,48) 
   }
-  else {
+  ELSE {
     $SaveChooser = New-Object -TypeName System.Windows.Forms.SaveFileDialog
     $SaveChooser.Title = "Save text to Wav file"
     $SaveChooser.FileName = "SpeechSynthesizer"
     $SaveChooser.Filter = 'Wave file (.wav) | *.wav'
     $Answer = $SaveChooser.ShowDialog(); $Answer
 
-    if ( $Answer -eq "OK" ) {
+    IF ( $Answer -eq "OK" ) {
       $Speak.SetOutputToDefaultAudioDevice() ; 
       $Speak.Rate = ($speed.Value)
       $Speak.Volume = $Volume.Value 
@@ -880,17 +894,17 @@ Function SaveSound {
 
 Function EnableMarkandEva { 
 
-  if (-not(Get-WmiObject -Class win32_operatingsystem).version.remove(2) -eq 10 ) { 
+  IF (-not(Get-WmiObject -Class win32_operatingsystem).version.remove(2) -eq 10 ) { 
     [System.Windows.Forms.MessageBox]::Show("$OS","Warning:",0,48) 
   }
 
-  else {
-    if ($Admin -eq $true) {
+  ELSE {
+    IF ($Admin -eq $true) {
 
     $UserPrompt = new-object -comobject wscript.shell
     $Answer = $UserPrompt.popup($Message, 0, "Enable system Voices", 4)
 
-      If ($Answer -eq 6) {
+      IF ($Answer -eq 6) {
         New-Item -Value $eva -Path $env:SystemDrive\Eva.reg
         New-Item -Value $Mark -Path $env:SystemDrive\Mark.reg
         Start-Process regedit.exe -ArgumentList  /s, $env:SystemDrive\Eva.reg -Wait  
@@ -900,10 +914,10 @@ Function EnableMarkandEva {
 
         $UserPrompt = new-object -comobject wscript.shell
         $Answer = $UserPrompt.popup($Restart, 0, "Restart prompt", 4)
-          If ($Answer -eq 6) { Restart-Computer -Force }
+          IF ($Answer -eq 6) { Restart-Computer -Force }
 
       } 
-    }   Else { [System.Windows.Forms.MessageBox]::Show("$AdminMeg","Warning:",0,48) } 
+    }   ELSE { [System.Windows.Forms.MessageBox]::Show("$AdminMeg","Warning:",0,48) } 
   }
 }
 
@@ -955,7 +969,7 @@ $SpeakButtion.location = "660, 401"
 $SpeakButtion.Size = "127, 43"
 $SpeakButtion.Anchor = "Bottom"
 $SpeakButtion.text = "Play"
-$SpeakButtion.Font = 'Microsoft Sans Serif,10'
+$SpeakButtion.Font = 'Microsoft Sans SerIF,10'
 $SpeakButtion.add_Click( { PlaySound })
 
 $SaveButtion = New-Object system.Windows.Forms.Button
@@ -963,7 +977,7 @@ $SaveButtion.location = "660, 456"
 $SaveButtion.Size = "127, 55"
 $SaveButtion.Anchor = "Bottom"
 $SaveButtion.text = "Save"
-$SaveButtion.Font = 'Microsoft Sans Serif,10'
+$SaveButtion.Font = 'Microsoft Sans SerIF,10'
 $SaveButtion.add_Click( { SaveSound })
 
 # Text Group Box
@@ -985,7 +999,7 @@ $speakTextbox.EnableAutoDragDrop = $true
 $SpeakTextBox.multiline = $true
 $SpeakTextBox.AcceptsTab = $true
 $SpeakTextBox.ScrollBars = "both"
-$SpeakTextBox.Font = 'Microsoft Sans Serif,10'
+$SpeakTextBox.Font = 'Microsoft Sans SerIF,10'
 $SpeakTextBox.Cursor = "IBeam"
 $TextGB.Controls.Add( $SpeakTextBox )
 
@@ -1004,9 +1018,9 @@ $SelectVoiceCB.Size = "618,24"
 $SelectVoiceCB.Text = $speak.Voice.Name
 $SelectVoiceCB.DropDownStyle = 'DropDownList'
 
-$SelectVoiceCB.Font = 'Microsoft Sans Serif,10'
-$Voices = ($speak.GetInstalledVoices() | ForEach-Object { $_.voiceinfo }).Name
-foreach ($Voice in $Voices) {
+$SelectVoiceCB.Font = 'Microsoft Sans SerIF,10'
+$Voices = ($speak.GetInstalledVoices() | FOREACH-Object { $_.voiceinfo }).Name
+FOREACH ($Voice in $Voices) {
   [void]$SelectVoiceCB.Items.add($voice) 
 }
 $SelectGB.Controls.Add($SelectVoiceCB)
@@ -1056,21 +1070,21 @@ $Form.controls.AddRange(@( $Menu, $SpeechGB, $SpeakButtion, $SaveButtion, $Selec
 
 }
 
-# Get All wifi passwords
-# Credit to https://itfordummies.net/2018/11/05/get-known-wifi-networks-passwords-powershell/
-Function Get-WifiPassword {
+# Get All wIFi passwords
+# Credit to https://itfordummies.net/2018/11/05/get-known-wIFi-networks-passwords-powershell/
+Function Get-WIFiPassword {
 
     Clear-Output
 
-    netsh wlan show profile | Select-Object -Skip 3| Where-Object -FilterScript {($_ -like '*:*')} | ForEach-Object -Process {
+    netsh wlan show profile | Select-Object -Skip 3| Where-Object -FilterScript {($_ -like '*:*')} | FOREACH-Object -Process {
         $NetworkName = $_.Split(':')[-1].trim()
-        $PasswordDetection = $(netsh wlan show profile name =$NetworkName key=clear) | Where-Object -FilterScript {($_ -like '*contenu de la cl�*') -or ($_ -like '*key content*')}
+        $PasswordDetection = $(netsh wlan show profile name =$NetworkName key=clear) | Where-Object -FilterScript {($_ -like '*contenu de la clé*') -or ($_ -like '*key content*')}
 
-       $Wifi = New-Object -TypeName PSObject -Property @{
+       $WIFi = New-Object -TypeName PSObject -Property @{
             NetworkName = $NetworkName
-            Password = if($PasswordDetection){$PasswordDetection.Split(':')[-1].Trim()}else{'Unknown'}
+            Password = IF($PasswordDetection){$PasswordDetection.Split(':')[-1].Trim()}ELSE{'Unknown'}
         } -ErrorAction SilentlyContinue | Select NetworkName, Password | Out-String
-        $TextBox_Output.AppendText($Wifi)  
+        $TextBox_Output.AppendText($WIFi)  
     }
 }
 
@@ -1089,6 +1103,7 @@ Function Enable-Ultimate_Performance {
 #                    Active Directory Functions                           # 
 #=========================================================================#
 
+# This will import the XML saved the public folder If the XML file does not exist it will run the command below 
 Function Import-ADxml {
 
  $AD_XML = Import-Clixml "$env:PUBLIC\Ultimate Administrator Console\AD.xml"
@@ -1102,6 +1117,7 @@ Function Import-ADxml {
      
 }
 
+# If the application is run for the first time it will export all of the Active Directory data to an XML file 
 Function Import-ADdata {
 
     $script:AD_Forest      = (Get-ADForest).Name
@@ -1121,37 +1137,37 @@ Function Enable-ActiveDirectory {
     $StatusBarLabel.text = "  Loading Active Directory Objects"
         
     #Import AD Module
-    try { 
+    TRY { 
         Import-Module activedirectory -ErrorAction Stop -WarningAction SilentlyContinue 
                 
-        If (test-path "$env:PUBLIC\Ultimate Administrator Console\AD.xml") {
+        IF (test-path "$env:PUBLIC\Ultimate Administrator Console\AD.xml") {
             $LastWriteTime = (Get-ItemProperty "$env:PUBLIC\Ultimate Administrator Console\AD.xml").LastWriteTime
             $UserPrompt = new-object -comobject wscript.shell
             $Answer = $UserPrompt.popup("Load Active Directory data from local cache? `n`nCache was Last updated on $LastWriteTime", 0, " Load from cache", 0x4 + 0x20)
     
-         switch ($Answer) {
+         SWITCH ($Answer) {
 
             6           { Import-ADxml }
             Default     { Import-ADdata }  
              
             }
                     
-        } Else { Import-ADdata }     
+        } ELSE { Import-ADdata }     
         
-        ForEach ($User in $AD_Users) { [void]$ComboBox_Users.Items.Add($user) }
+        FOREACH ($User in $AD_Users) { [void]$ComboBox_Users.Items.Add($user) }
         $ComboBox_Users.AutoCompleteSource = "CustomSource" 
         $ComboBox_Users.AutoCompleteMode = "SuggestAppend"
-        $AD_Users | ForEach-Object { [void]$ComboBox_Users.AutoCompleteCustomSource.Add($_) }
+        $AD_Users | FOREACH-Object { [void]$ComboBox_Users.AutoCompleteCustomSource.Add($_) }
 
-        ForEach ($CPU in $AD_Computers) { [void]$ComboBox_Computers.Items.Add($CPU) }
+        FOREACH ($CPU in $AD_Computers) { [void]$ComboBox_Computers.Items.Add($CPU) }
         $ComboBox_Computers.AutoCompleteSource = "CustomSource" 
         $ComboBox_Computers.AutoCompleteMode = "SuggestAppend"
-        $AD_Computers | ForEach-Object { [void]$ComboBox_Computers.AutoCompleteCustomSource.Add($_) }
+        $AD_Computers | FOREACH-Object { [void]$ComboBox_Computers.AutoCompleteCustomSource.Add($_) }
         
-        ForEach ($Group in $AD_Groups) { [void]$ComboBox_Groups.Items.Add($Group) }
+        FOREACH ($Group in $AD_Groups) { [void]$ComboBox_Groups.Items.Add($Group) }
         $ComboBox_Groups.AutoCompleteSource = "CustomSource" 
         $ComboBox_Groups.AutoCompleteMode = "SuggestAppend"
-        $AD_Groups | ForEach-Object { [void]$ComboBox_Groups.AutoCompleteCustomSource.Add($_) }
+        $AD_Groups | FOREACH-Object { [void]$ComboBox_Groups.AutoCompleteCustomSource.Add($_) }
             
         $Panel_ActiveDirectory.Enabled = $true
         $Menu_AD.Enabled = $true
@@ -1161,7 +1177,7 @@ Function Enable-ActiveDirectory {
         $TextBox_Output.AppendText("*** Active Directory object have been loaded ***")    
         
         
-    } catch {
+    } CATCH {
     Write-OutError
     Set-StatusBarReady
     $Button_ActiveDirectory_StartButtion.Enabled = $true
@@ -1171,7 +1187,7 @@ Function Enable-ActiveDirectory {
 # Save AD data to cache
 Function Save-ADdata {
         
-    Try {
+    TRY {
         
         New-Object PSObject -Property @{
 
@@ -1181,7 +1197,7 @@ Function Save-ADdata {
             OUs        = $AD_OUs  
         
         } | Export-Clixml "$env:PUBLIC\Ultimate Administrator Console\AD.xml"
-    } Catch { Write-OutError }
+    } CATCH { Write-OutError }
 }
 
 # starts selected action
@@ -1192,9 +1208,9 @@ Function Start-AD_UserFunction {
         $TextBox_Output.AppendText("No App Selected") 
     }
 
-    Else { 
-      try { 
-        switch ($ListBox_users.SelectedItem) {
+    ELSE { 
+      TRY { 
+        SWITCH ($ListBox_users.SelectedItem) {
 
             "Account info"                           { Get-AD_UserFullInfo }
             "List all groups"                        { Get-AD_UserMembers }
@@ -1211,7 +1227,7 @@ Function Start-AD_UserFunction {
             "Remove Account"                         { Remove-AD_User }
 
             } 
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
@@ -1223,9 +1239,9 @@ Function Start-AD_ComputerFunction {
         $TextBox_Output.AppendText("No App Selected") 
     }
 
-    Else { 
-      try { 
-        switch ($ListBox_computers.SelectedItem) {
+    ELSE { 
+      TRY { 
+        SWITCH ($ListBox_computers.SelectedItem) {
         
         "Computer info"                                { Get-AD_ComputerFullInfo }
         "System info"                                  { Get-AD_systemInfo }
@@ -1244,7 +1260,7 @@ Function Start-AD_ComputerFunction {
         "Restart PC"                                   { Restart-AD_Computer } 
 
             } 
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
@@ -1256,9 +1272,9 @@ Function Start-AD_GroupFunction {
         $TextBox_Output.AppendText("No App Selected") 
     }
 
-    Else { 
-      try { 
-        switch ($ListBox_Groups.SelectedItem) {
+    ELSE { 
+      TRY { 
+        SWITCH ($ListBox_Groups.SelectedItem) {
         
         "Group info"               { GroupInfo }
         "List Members"             { GroupMembers }
@@ -1271,7 +1287,7 @@ Function Start-AD_GroupFunction {
  
 
             } 
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
@@ -1396,18 +1412,18 @@ $Button_NewUser_Cancel.add_Click( { $NewUserFrom.Close(); $NewUserFrom.Dispose()
 $Button_NewUser_OK.add_Click( { New-AD_User })
 
 # Populate ComboBoxes
-ForEach ($Domain in $AD_Domain) { [void]$ComboBox_UPN.Items.Add("@$Domain") }
+FOREACH ($Domain in $AD_Domain) { [void]$ComboBox_UPN.Items.Add("@$Domain") }
 [void]$ComboBox_UPN.Items.Add("@$AD_Forest") 
 
-ForEach ($User in $AD_Users) { [void]$ComboBox_CopyUser.Items.Add($User) }
+FOREACH ($User in $AD_Users) { [void]$ComboBox_CopyUser.Items.Add($User) }
 $ComboBox_CopyUser.AutoCompleteSource = "CustomSource" 
 $ComboBox_CopyUser.AutoCompleteMode = "SuggestAppend"
-$AD_users | ForEach-Object { [void]$ComboBox_CopyUser.AutoCompleteCustomSource.Add($_) }
+$AD_users | FOREACH-Object { [void]$ComboBox_CopyUser.AutoCompleteCustomSource.Add($_) }
 
-ForEach ($OU in $AD_OUs.CanonicalName) { [void]$ComboBox_OU.Items.Add($OU) }
+FOREACH ($OU in $AD_OUs.CanonicalName) { [void]$ComboBox_OU.Items.Add($OU) }
 $ComboBox_OU.AutoCompleteSource = "CustomSource" 
 $ComboBox_OU.AutoCompleteMode = "SuggestAppend"
-$AD_OUs.CanonicalName | ForEach-Object { [void]$ComboBox_OU.AutoCompleteCustomSource.Add($_) }
+$AD_OUs.CanonicalName | FOREACH-Object { [void]$ComboBox_OU.AutoCompleteCustomSource.Add($_) }
 
 # Controls
 $GroupBox_CopyUser.Controls.Add($ComboBox_CopyUser)
@@ -1446,7 +1462,7 @@ Function New-AD_User {
     $obj = $ComboBox_OU.SelectedItem.Replace(',','\,').Split('/')
     [string]$DN = "OU=" + $obj[$obj.count - 1]
     for ($i = $obj.count - 2;$i -ge 1;$i--){$DN += ",OU=" + $obj[$i]}
-    $obj[0].split(".") | ForEach-Object { $DN += ",DC=" + $_}
+    $obj[0].split(".") | FOREACH-Object { $DN += ",DC=" + $_}
     # the rest is my code
 
     $NewUser = @{
@@ -1463,7 +1479,7 @@ Function New-AD_User {
 
     } 
 
-    Try { 
+    TRY { 
         
     $StatusBarLabel.text = "  Creating new user account for $UserName"
     New-ADUser @NewUser -ErrorAction Stop
@@ -1493,7 +1509,7 @@ Password is $Seasons$Num and must be chagned at next login."
         Save-ADdata
         Set-StatusBarReady
 
-    } catch { Write-OutError ; Set-StatusBarReady }
+    } CATCH { Write-OutError ; Set-StatusBarReady }
 }
 
 
@@ -1502,13 +1518,13 @@ Function Get-AD_UserFullInfo {
 
     IF ($ComboBox_Users.SelectedItem -eq $null) {
         Set-Output_ADuserNull
-    } Else {
-        Try {
+    } ELSE {
+        TRY {
             Clear-Output
             $UserAccount = $ComboBox_Users.Text.ToString()
             $TextBox_Output.text = get-aduser $UserAccount -Properties * | Format-List | Out-String -Width 2147483647
             
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
@@ -1517,14 +1533,14 @@ Function Get-AD_UserMembers {
 
     IF ($ComboBox_Users.SelectedItem -eq $null) {
         Set-Output_ADuserNull
-    } Else {
-        Try {
+    } ELSE {
+        TRY {
             Clear-Output
             $UserAccount = $ComboBox_Users.Text.ToString()
-            $results = get-aduser $UserAccount -Properties * | ForEach-Object {($_.memberof | Get-ADGroup | Select-Object -ExpandProperty Name)} | Sort-Object | Format-List | Out-String -Width 2147483647
+            $results = get-aduser $UserAccount -Properties * | FOREACH-Object {($_.memberof | Get-ADGroup | Select-Object -ExpandProperty Name)} | Sort-Object | Format-List | Out-String -Width 2147483647
             IF( $results.Length -eq '0' )  { Write-OutInfo ; $TextBox_Output.text = "$UserAccount is not a member of any groups"}
-            Else { $TextBox_Output.AppendText($results) }
-        } Catch { Write-OutError }
+            ELSE { $TextBox_Output.AppendText($results) }
+        } CATCH { Write-OutError }
     }
 }
 
@@ -1534,8 +1550,8 @@ Function Set-AD_UserPasswordReset {
 
     IF ($ComboBox_Users.SelectedItem -eq $null) {
       Set-Output_ADuserNull
-    } Else {
-        Try {
+    } ELSE {
+        TRY {
             $UserAccount = $ComboBox_Users.Text.ToString()
             $UserPrompt = new-object -comobject wscript.shell
             $Answer = $UserPrompt.popup("         Reset $UserAccount Password?", 0, "Reset Password Prompt", 4)
@@ -1547,8 +1563,8 @@ Function Set-AD_UserPasswordReset {
                 Set-ADAccountPassword -Identity $ComboBox_Users.SelectedItem -Reset -NewPassword (ConvertTo-SecureString -AsPlainText "$Seasons$Num" -Force)  -ErrorAction Stop
                 Set-ADuser -Identity $ComboBox_Users.SelectedItem -ChangePasswordAtLogon $True
                 $TextBox_Output.AppendText("$UserAccount's password has been reset to $Seasons$Num and must be changed at next logon")
-            } Else { Write-Cancelled }
-        } Catch { Write-OutError }
+            } ELSE { Write-Cancelled }
+        } CATCH { Write-OutError }
     }
 }
 
@@ -1557,13 +1573,13 @@ Function Set-AD_UserUnlockAccount {
 
     IF ($ComboBox_Users.SelectedItem -eq $null) {
         Set-Output_ADuserNull
-    } Else {
-        Try {
+    } ELSE {
+        TRY {
             $UserAccount = $ComboBox_Users.Text.ToString()                
             Clear-Output
             Unlock-ADAccount -Identity $ComboBox_Users.Text -ErrorAction Stop
             $TextBox_Output.AppendText("$UserAccount's account is now unlocked")
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
                         
@@ -1572,9 +1588,9 @@ Function Set-AD_UserDisableOrEnable {
 
     IF ($ComboBox_Users.SelectedItem -eq $null) {
        Set-Output_ADuserNull
-    } Else {
+    } ELSE {
         IF ((Get-ADUser -Identity $ComboBox_Users.SelectedItem).Enabled -eq $true) { 
-            Try {
+            TRY {
     
                 $UserAccount = $ComboBox_Users.Text.ToString()
                 $UserPrompt = new-object -comobject wscript.shell
@@ -1584,15 +1600,15 @@ Function Set-AD_UserDisableOrEnable {
                     Clear-Output
                     Disable-ADAccount -Identity $ComboBox_Users.SelectedItem -ErrorAction Stop
                     $TextBox_Output.AppendText("$UserAccount account is now disabled")
-                } Else {
+                } ELSE {
                     Clear-Output
                     Write-OutInfo
                     $TextBox_Output.AppendText("Account disabled operation canceled") 
                 }
 
-            } Catch { Write-OutError }
-        } Else { 
-            Try {
+            } CATCH { Write-OutError }
+        } ELSE { 
+            TRY {
     
                 $UserAccount = $ComboBox_Users.Text.ToString()
                 $UserPrompt = new-object -comobject wscript.shell
@@ -1602,8 +1618,8 @@ Function Set-AD_UserDisableOrEnable {
                     Clear-Output
                     Enable-ADAccount -Identity $ComboBox_Users.SelectedItem -ErrorAction Stop
                     $TextBox_Output.AppendText("$UserAccount account is now Enabled")
-                } Else {Write-Cancelled }
-            } Catch { Write-OutError }
+                } ELSE {Write-Cancelled }
+            } CATCH { Write-OutError }
         }
     }
 }
@@ -1613,23 +1629,23 @@ Function Set-PasswordToNeverExpire {
 
     IF ($ComboBox_Users.SelectedItem -eq $null) {
         Set-Output_ADuserNull
-    } Else {
+    } ELSE {
         IF ((Get-ADUser $ComboBox_Users.SelectedItem -Properties *).PasswordNeverExpires -eq $false ) {
 
-            Try {
+            TRY {
                 Clear-Output
                 $UserAccount = $ComboBox_Users.Text.ToString()
                 set-aduser $ComboBox_Users.SelectedItem -PasswordNeverExpires:$true 
                 $TextBox_Output.AppendText("$UserAccount account is set to 'Password Never Expires'")
         
-            } Catch { Write-OutError }
-        } Else {
-            Try {
+            } CATCH { Write-OutError }
+        } ELSE {
+            TRY {
                 Clear-Output
                 $UserAccount = $ComboBox_Users.Text.ToString()
                 set-aduser $ComboBox_Users.SelectedItem -PasswordNeverExpires:$false 
                 $TextBox_Output.AppendText("$UserAccount Password is now expired and must be changed")
-            } Catch { Write-OutError }
+            } CATCH { Write-OutError }
         }
     }
 }
@@ -1639,23 +1655,23 @@ Function Set-PasswordToCannotBeChanged {
 
     IF ($ComboBox_Users.SelectedItem -eq $null) {
         Set-Output_ADuserNull
-    } Else {
+    } ELSE {
             IF ((Get-ADUser $ComboBox_Users.SelectedItem -Properties *).CannotChangePassword -eq $false ) {
 
-                Try {
+                TRY {
                     Clear-Output
                     $UserAccount = $ComboBox_Users.Text.ToString()
                     set-aduser $ComboBox_Users.SelectedItem -CannotChangePassword:$true
                     $TextBox_Output.AppendText("$UserAccount's account is set to 'Cannot Change Password'")
         
-                } Catch { Write-OutError }
-            } Else {
-                Try {
+                } CATCH { Write-OutError }
+            } ELSE {
+                TRY {
                     Clear-Output
                     $UserAccount = $ComboBox_Users.Text.ToString()
                     Set-Aduser $ComboBox_Users.SelectedItem -CannotChangePassword:$false 
                     $TextBox_Output.AppendText("$UserAccount's Password can now be changed by user")
-            } Catch { Write-OutError }
+            } CATCH { Write-OutError }
         }
     }
 }
@@ -1665,17 +1681,17 @@ Function Add-AD_UserToGroup {
 
      IF ($ComboBox_Users.SelectedItem -eq $null) {
         Set-Output_ADuserNull
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             Clear-Output
             $UserAccount = $ComboBox_Users.Text.ToString()
             $List = $AD_Groups | Out-GridView -PassThru -Title "Select Group(s)"
             IF ($list.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("No Groups selected")}
-            Else {
-                Foreach($Group in $List) { Add-ADGroupMember -Identity $Group -Members $UserAccount -Confirm:$false } 
+            ELSE {
+                FOREACH($Group in $List) { Add-ADGroupMember -Identity $Group -Members $UserAccount -Confirm:$false } 
                 $TextBox_Output.AppendText("$UserAccount has now been added to selected Groups")
             }
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 } 
 
@@ -1684,27 +1700,27 @@ Function Copy-AD_UserMemberships {
 
     IF ($ComboBox_Users.SelectedItem -eq $null) {
         Set-Output_ADuserNull
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             $UserAccount = $ComboBox_Users.Text.ToString()
             $CopyUser = $AD_Users | Sort-Object | Out-GridView -PassThru -Title "Select Account" 
             IF ($CopyUser.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("No Account selected")}
-            Else {
+            ELSE {
                 $UserPrompt = new-object -comobject wscript.shell
                 $Answer = $UserPrompt.popup("        Copy all Groups form $CopyUser'?", 0, "Copy",0x4 + 0x20)
-                Switch ($Answer) {
+                SWITCH ($Answer) {
                 6 {
                     $StatusBar.text = "Copying All Groups from $UserAccount"
                     Start-Sleep -Milliseconds 0.2
-                    $List = Get-ADUser $CopyUser -Properties * | ForEach-Object {($_.memberof | Get-ADGroup).SamAccountName } 
-                    Foreach($Group in $List) { Add-ADGroupMember -Identity $Group -Members $UserAccount -Confirm:$false -ErrorAction SilentlyContinue } 
+                    $List = Get-ADUser $CopyUser -Properties * | FOREACH-Object {($_.memberof | Get-ADGroup).SamAccountName } 
+                    FOREACH($Group in $List) { Add-ADGroupMember -Identity $Group -Members $UserAccount -Confirm:$false -ErrorAction SilentlyContinue } 
                     Clear-Output
                     $TextBox_Output.AppendText("All groups from $CopyUser have been added to $UserAccount")
                     Set-StatusBarReady
                     }  Default  { Write-Cancelled }
                 }
             }
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
@@ -1713,55 +1729,55 @@ Function Remove-AD_UserfromAllGroups {
 
     IF ($ComboBox_Users.SelectedItem -eq $null) {
         Set-Output_ADuserNull
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             Clear-Output
             $UserAccount = $ComboBox_Users.Text.ToString()
             $UserPrompt = new-object -comobject wscript.shell
-            $List = get-aduser $UserAccount -Properties * | ForEach-Object {($_.memberof | Get-ADGroup).SamAccountname} 
+            $List = get-aduser $UserAccount -Properties * | FOREACH-Object {($_.memberof | Get-ADGroup).SamAccountname} 
             IF ($list.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("Account is not a member of any Groups")}
-            Else {
-                $List = get-aduser $UserAccount -Properties * | ForEach-Object {($_.memberof | Get-ADGroup).SamAccountName}
+            ELSE {
+                $List = get-aduser $UserAccount -Properties * | FOREACH-Object {($_.memberof | Get-ADGroup).SamAccountName}
                 $Answer = $UserPrompt.popup("        Remove all Groups from $UserAccount`?", 0, "Remove", 0x4 + 0x30)
-                Switch ($Answer) {
+                SWITCH ($Answer) {
                 6 {
                     Clear-Output
                     $StatusBar.text = "Removing All Groups"
                     Start-Sleep -Milliseconds 0.2
-                    Foreach($Group in $List) { Remove-ADGroupMember -Identity $Group -Members $UserAccount -Confirm:$false } 
+                    FOREACH($Group in $List) { Remove-ADGroupMember -Identity $Group -Members $UserAccount -Confirm:$false } 
                     Set-StatusBarReady 
                     $TextBox_Output.AppendText("Removed all groups form $UserAccount") 
                     }  Default  { Write-Cancelled }
                 }
             }
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
 Function Remove-AD_UserfromGroup {
     
-    If ($ComboBox_Users.SelectedItem -eq $null) {
+    IF ($ComboBox_Users.SelectedItem -eq $null) {
         Set-Output_ADuserNull
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             Clear-Output
             $UserAccount = $ComboBox_Users.Text.ToString()
-            $List = get-aduser $UserAccount -Properties * | ForEach-Object {($_.memberof | Get-ADGroup).SamAccountname} | Sort-Object | Out-GridView -PassThru -Title "Select Groups"
+            $List = get-aduser $UserAccount -Properties * | FOREACH-Object {($_.memberof | Get-ADGroup).SamAccountname} | Sort-Object | Out-GridView -PassThru -Title "Select Groups"
             IF ($list.Length -eq '0' ) {$TextBox_Output.AppendText("Account is not a member of any Groups")}
-            Else {
+            ELSE {
                 $UserPrompt = new-object -comobject wscript.shell
                 $Answer = $UserPrompt.popup("      Remove groups from $UserAccount`?", 0, "Remove", 0x4 + 0x30)
-                Switch ($Answer) {
+                SWITCH ($Answer) {
                 6 {
                     IF ($list.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("No Groups selected")}
-                    Else {
-                        Foreach($Group in $List) { Remove-ADGroupMember -Identity $Group -Members $UserAccount -Confirm:$false } 
+                    ELSE {
+                        FOREACH($Group in $List) { Remove-ADGroupMember -Identity $Group -Members $UserAccount -Confirm:$false } 
                         $TextBox_Output.AppendText("All selected groups have been removed form $UserAccount")
                         }
                     } Default  { Write-Cancelled }
                 }
             }
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
@@ -1771,18 +1787,18 @@ Function Move-AD_User {
 
     IF ($ComboBox_Users.SelectedItem -eq $null) {
         Set-Output_ADuserNull
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             Clear-Output
             $ORG = $AD_OUs | Out-GridView -PassThru -Title "Select Organizational Unit"
             IF ($list.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("No Organizational Unit selected")}
-            Else {$User = $ComboBox_Users.SelectedItem.ToString() 
+            ELSE {$User = $ComboBox_Users.SelectedItem.ToString() 
                 $ORG_move = $ORG.CanonicalName
                 $User_Move = Get-ADuser -Identity $ComboBox_Users.SelectedItem -Properties * | select DistinguishedName 
                 Move-ADObject -Identity $User_Move.DistinguishedName -TargetPath $ORG.DistinguishedName
                 $TextBox_Output.text = "Moved $User to $ORG_move"
             }
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
@@ -1791,12 +1807,12 @@ Function Remove-AD_User {
 
     IF ($ComboBox_Users.SelectedItem -eq $null) {
         Set-Output_ADuserNull
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             $UserAccount = $ComboBox_Users.SelectedItem.ToString()
             $UserPrompt = new-object -comobject wscript.shell
             $Answer = $UserPrompt.popup("   Remove $UserAccount from AD?", 0, "Remove User account", 0x4 + 0x10)
-            Switch ($Answer) {
+            SWITCH ($Answer) {
             6 {
              Clear-Output
                 $User = $ComboBox_Users.SelectedItem.ToString() 
@@ -1813,7 +1829,7 @@ Function Remove-AD_User {
                 $TextBox_Output.AppendText("Remove account operation canceled") 
                 }
             }
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
@@ -1822,223 +1838,228 @@ Function Remove-AD_User {
 # Computer Functions
 #===========================================================
 
+# Provides full information for computer account 
 Function Get-AD_ComputerFullInfo {
 
     IF ($ComboBox_Computers.SelectedItem -eq $null) {
         Set-Output_ADComputerNull 
-    } Else {
-    Try {
+    } ELSE {
+    TRY {
         Clear-Output
         $TextBox_Output.text = Get-ADComputer $ComboBox_Computers.SelectedItem -Properties * | Format-List | Out-String -Width 2147483647 
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
-
+# This will provide hardware information to computer account 
 Function Get-AD_systemInfo {
  
     IF ($ComboBox_Computers.SelectedItem -eq $null) {
         Set-Output_ADComputerNull 
-    } Else {
-    Try {
+    } ELSE {
+    TRY {
         Clear-Output
         $Sys = $ComboBox_Computers.SelectedItem.ToString()
         $TextBox_Output.text = Invoke-Expression "systeminfo /s $Sys" -ErrorAction Stop | Out-String
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
+# This will ping the selected computer 
 Function Start-AD_ComputerPing {
 
   IF ($ComboBox_Computers.SelectedItem -eq $null) {
         Set-Output_ADComputerNull 
-    } Else {
-    Try {
+    } ELSE {
+    TRY {
         Clear-Output
         $Sys = $ComboBox_Computers.SelectedItem.ToString()
         $TextBox_Output.text = Invoke-Expression "Ping $Sys" -ErrorAction Stop | Out-String
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
+# This will start a traceroute to selected computer 
 Function Start-AD_TraceRoute {
     IF ($ComboBox_Computers.SelectedItem -eq $null) {
         Set-Output_ADComputerNull 
-    } Else {
+    } ELSE {
         $IP_URI = $ComboBox_Computers.SelectedItem.ToString()
         $Path = "$env:PUBLIC\TraceRoute$IP_URI.txt"
         Start-Process Powershell -ArgumentList "Start-Transcript -Path $Path ; Test-NetConnection -TraceRoute $IP_URI ; Invoke-item $path" 
     }
 }
 
+# This will do an NS look up to specify computer 
 Function Get-AD_nslookup {
    IF ($ComboBox_Computers.SelectedItem -eq $null) {
         Set-Output_ADComputerNull 
-    } Else {
-        Try {
+    } ELSE {
+        TRY {
         $IP_URI = $ComboBox_Computers.SelectedItem.ToString()
         $TextBox_Output.text = Invoke-Expression "Resolve-DnsName $IP_URI -ErrorAction Stop" | Out-String
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
+# This will restart a service on selected computer 
 Function Restart-AD_Service {
     IF ($ComboBox_Computers.SelectedItem -eq $null) {
         Set-Output_ADComputerNull 
-       } Else {
-            Try {
+       } ELSE {
+            TRY {
             Clear-Output
             $Computer = $ComboBox_Computers.SelectedItem.ToString()
             $Service = (Get-Service -ComputerName $Computer | Out-GridView -PassThru -Title "Select Service to (Re)start").name 
             IF ($Service.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("No service selected")}
-            Else {
+            ELSE {
                 Get-Service -ComputerName $Computer -Name $Service | Restart-Service -Force -ErrorAction Stop 
                 $TextBox_Output.text = "Starting $Service service on $Computer"
             }
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
-
- Function Stop_AD_Service {
+# This will stop a service on selected computer 
+Function Stop_AD_Service {
     IF ($ComboBox_Computers.SelectedItem -eq $null) {
         Set-Output_ADComputerNull 
-      } Else {
-            Try {
+      } ELSE {
+            TRY {
             Clear-Output
             $Computer = $ComboBox_Computers.SelectedItem.ToString()
             $Service = (Get-Service -ComputerName $Computer | Out-GridView -PassThru -Title "Select Service to (Re)start").name
             IF ($Service.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("No service selected")}
-            Else {
+            ELSE {
                 Get-Service -ComputerName $Computer -Name $Service | Stop-Service -Force -ErrorAction Stop 
                 $TextBox_Output.text = "Stopping $Service service on $Computer"
             }
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
  
-
+# This will stop selected process on selected computer 
 Function Stop_AD_Process {
     IF ($ComboBox_Computers.SelectedItem -eq $null) {
         Set-Output_ADComputerNull 
-    } Else {
-            Try {
+    } ELSE {
+            TRY {
             Clear-Output
             $Computer = $ComboBox_Computers.SelectedItem.ToString()
             $StatusBarLabel.text = " Running WMI query on $Computer"
             Start-Sleep 0.2
             $Process = (Get-WmiObject Win32_Process -ComputerName $Computer | Select Name, @{Name="UserName";Expression={$_.GetOwner().Domain+"\"+$_.GetOwner().User}} | Sort-Object UserName, Name | Out-GridView -Title "Select Process" -PassThru).name 
             IF ($Process.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("No process selected") ; Set-StatusBarReady}
-            Else {
+            ELSE {
                 (Get-WmiObject Win32_Process -ComputerName $Computer | Where { $_.ProcessName -match $Process }).Terminate()
                 $TextBox_Output.text = "Stopping $process Process on $Computer"
                 Set-StatusBarReady
             }
-        } Catch { Write-OutError ; Set-StatusBarReady}
+        } CATCH { Write-OutError ; Set-StatusBarReady}
     }
 }
  
-
+ # This will remotely connect to specific computer 
 Function Connect-AD_Computer{
 
     IF ($ComboBox_Computers.SelectedItem -eq $null) {
         Set-Output_ADComputerNull
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             $Computer = $ComboBox_Computers.SelectedItem.ToString() 
             Clear-Output
             $TextBox_Output.text = "Connceting to $Computer"
             Start-Process mstsc.exe -ArgumentList "/v:$Computer"
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
-
+# This will remotely connect to event viewer for specified computer 
 Function Start-AD_ComputerEventViewer {
     
     IF ($ComboBox_Computers.SelectedItem -eq $null) {
         Set-Output_ADComputerNull 
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             $Computer = $ComboBox_Computers.SelectedItem.ToString() 
             Clear-Output
             $TextBox_Output.text = "Opening Event viewer to $Computer"
             Start-Process eventvwr.exe -ArgumentList "$Computer"
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
-
+# This will start computer management on specified computer 
 Function Start-AD_ComputerManagement {
     IF ($ComboBox_Computers.SelectedItem -eq $null) {
         Set-Output_ADComputerNull
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             $Computer = $ComboBox_Computers.SelectedItem.ToString() 
             Clear-Output
             $TextBox_Output.text = "Opening Computer Management to $Computer"
             Start-Process compmgmt.msc -ArgumentList "/s /computer:\\$Computer"
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
-
+# This will list all groups computer is a member of 
 Function Get-AD_ComputerMembers {
 
     IF ($ComboBox_Computers.SelectedItem -eq $null) {
         Set-Output_ADComputerNull
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             Clear-Output
             $Computer = $ComboBox_Computers.SelectedItem.ToString()
-            $TextBox_Output.text = Get-ADComputer $Computer -Properties * | ForEach-Object {($_.memberof | Get-ADGroup | Select-Object -ExpandProperty Name)} | Format-List | Out-String -Width 2147483647
-        } Catch { Write-OutError }
+            $TextBox_Output.text = Get-ADComputer $Computer -Properties * | FOREACH-Object {($_.memberof | Get-ADGroup | Select-Object -ExpandProperty Name)} | Format-List | Out-String -Width 2147483647
+        } CATCH { Write-OutError }
     }
 }
 
-
+# Will add computer to specified group or groups 
 Function Add-AD_ComputerToGroup {
 
      IF ($ComboBox_Computers.SelectedItem -eq $null) {
         Set-Output_ADComputerNull
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             Clear-Output
             $ComputerAccount = $ComboBox_Computers.Text.ToString()
             $List = $AD_Groups | Out-GridView -PassThru -Title "Select Group(s)"
             IF ($List.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("No Groups selected")}
-            Else {
-                Foreach($Group in $List) { Add-ADGroupMember -Identity $Group -Members "$ComputerAccount$" -Confirm:$false } 
+            ELSE {
+                FOREACH($Group in $List) { Add-ADGroupMember -Identity $Group -Members "$ComputerAccount$" -Confirm:$false } 
                 $TextBox_Output.AppendText("$ComputerAccount has now been added to selected Groups")
             }
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 } 
 
-
+# this will copy all memberships from specified computer account 
 Function Copy-AD_ComputerMembers {
 
     IF ($ComboBox_Computers.SelectedItem -eq $null) {
         Set-Output_ADComputerNull
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             $ComputerAccount = $ComboBox_Computers.Text.ToString()
             $CopyComputer = $AD_Computers | Sort-Object | Out-GridView -PassThru -Title "Select Account" 
             IF ($CopyComputer.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("No Computer selected")}
-            Else {
+            ELSE {
                 $UserPrompt = new-object -comobject wscript.shell
                 $Answer = $UserPrompt.popup("        Copy all Groups form $CopyComputer?", 0, "Copy", 0x4 + 0x20)
                 IF ($Answer -eq 6) {
                     $StatusBar.text = "Copying All Groups from $CopyComputer"
-                    $List = Get-ADComputer $CopyComputer -Properties * | ForEach-Object {($_.memberof | Get-ADGroup).SamAccountName } 
-                    Foreach($Group in $List) { Add-ADGroupMember -Identity $Group -Members "$ComputerAccount`$" -Confirm:$false -ErrorAction SilentlyContinue
+                    $List = Get-ADComputer $CopyComputer -Properties * | FOREACH-Object {($_.memberof | Get-ADGroup).SamAccountName } 
+                    FOREACH($Group in $List) { Add-ADGroupMember -Identity $Group -Members "$ComputerAccount`$" -Confirm:$false -ErrorAction SilentlyContinue
                     Start-Sleep -Milliseconds 0.2 } 
                     Clear-Output
                     $TextBox_Output.AppendText("All groups from $CopyComputer have been added to $ComputerAccount")
                     Set-StatusBarReady
                 }
             }
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
@@ -2047,24 +2068,24 @@ Function Remove-AD_ComputerFromAllGroups {
 
     IF ($ComboBox_Computers.SelectedItem -eq $null) {
         Set-Output_ADComputerNull
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             Clear-Output
             $ComputerAccount = $ComboBox_Computers.Text.ToString()      
-            $List = Get-ADComputer $ComputerAccount -Properties * | ForEach-Object {($_.memberof | Get-ADGroup).SamAccountName}
+            $List = Get-ADComputer $ComputerAccount -Properties * | FOREACH-Object {($_.memberof | Get-ADGroup).SamAccountName}
             IF ($List.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("Computer is not a member of any groups")}
-            Else {
+            ELSE {
                 $UserPrompt = new-object -comobject wscript.shell
                 $Answer = $UserPrompt.popup("        Remove all Groups from $ComputerAccount?", 0, "Remove", 0x4 + 0x30)
                 IF ($Answer -eq 6) {
                     $StatusBar.text = "Removing All Groups"
                     Start-Sleep -Milliseconds 0.2
-                    Foreach($Group in $List) { Remove-ADGroupMember -Identity $Group -Members "$ComputerAccount$" -Confirm:$false } 
+                    FOREACH($Group in $List) { Remove-ADGroupMember -Identity $Group -Members "$ComputerAccount$" -Confirm:$false } 
                     $TextBox_Output.AppendText("Removed all groups form $ComputerAccount") 
                     Set-StatusBarReady 
-                } Else { Write-Cancelled }
+                } ELSE { Write-Cancelled }
             }
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
@@ -2073,22 +2094,22 @@ Function Remove-AD_ComputerFromGroup {
 
     IF ($ComboBox_Computers.SelectedItem -eq $null) {
         Set-Output_ADComputerNull
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             Clear-Output
             $ComputerAccount = $ComboBox_Computers.Text.ToString()      
-            $List = Get-ADComputer $ComputerAccount -Properties * | ForEach-Object {($_.memberof | Get-ADGroup | Select-Object -ExpandProperty Name)} | Sort-Object | Out-GridView -PassThru -Title "Select Groups"
+            $List = Get-ADComputer $ComputerAccount -Properties * | FOREACH-Object {($_.memberof | Get-ADGroup | Select-Object -ExpandProperty Name)} | Sort-Object | Out-GridView -PassThru -Title "Select Groups"
             IF ($List.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("No Group seleceted")}
-            Else {
+            ELSE {
                 $UserPrompt = new-object -comobject wscript.shell
                 $Answer = $UserPrompt.popup("        Remove selceted Groups from $ComputerAccount?", 0, "Remove", 0x4 + 0x30)
                 IF ($Answer -eq 6) {
                     Clear-Output
-                    Foreach($Group in $List) { Remove-ADGroupMember -Identity $Group -Members "$ComputerAccount$" -Confirm:$false } 
+                    FOREACH($Group in $List) { Remove-ADGroupMember -Identity $Group -Members "$ComputerAccount$" -Confirm:$false } 
                     $TextBox_Output.AppendText("All selected groups have been removed form $ComputerAccount")
-                } Else { Write-Cancelled }
+                } ELSE { Write-Cancelled }
             }
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
@@ -2097,19 +2118,19 @@ Function Move-AD_Computer {
 
     IF ($ComboBox_Computers.SelectedItem -eq $null) {
         Set-Output_ADComputerNull
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             Clear-Output
             $ORG = $AD_OUs | Out-GridView -PassThru -Title "Select Organizational Unit"
             IF ($ORG.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("No Organizational Unit seleceted")}
-            Else {
+            ELSE {
                 $Computer = $ComboBox_Computers.SelectedItem.ToString() 
                 $ORG_move = $ORG.CanonicalName
                 $Computer_Move = Get-ADComputer $ComboBox_Computers.SelectedItem -Properties * | select DistinguishedName 
                 Move-ADObject -Identity $Computer_Move.DistinguishedName -TargetPath $ORG.DistinguishedName
                 $TextBox_Output.text = "Moved $Computer to $ORG_move"
                 }
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
@@ -2118,8 +2139,8 @@ Function Remove-AD_Computer {
 
     IF ($ComboBox_Computers.SelectedItem -eq $null) {
         Set-Output_ADComputerNull
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             $Computer = $ComboBox_Computers.SelectedItem.ToString() 
             $UserPrompt = new-object -comobject wscript.shell
             $Answer = $UserPrompt.popup("        Remove $Computer from AD?", 0, "Remove", 0x4 + 0x10)
@@ -2134,17 +2155,18 @@ Function Remove-AD_Computer {
                 [void]$ComboBox_Computers.AutoCompleteCustomSource.Remove($Computer) 
                 Save-ADdata
 
-            } Else { Write-Cancelled }
-        } Catch { Write-OutError }
+            } ELSE { Write-Cancelled }
+        } CATCH { Write-OutError }
     }
 }
 
+# This will invoke remote GP update to selected computer and restart computer if specified
 Function Invoke-AD_ComputerPolicyUpdate {
     
     IF ($ComboBox_Computers.SelectedItem -eq $null) {
         Set-Output_ADComputerNull
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             $Computer = $ComboBox_Computers.SelectedItem.ToString() 
             $UserPrompt = new-object -comobject wscript.shell
             $Answer = $UserPrompt.popup("Restart $Computer after group policy update?", 0, "Gpupdate", 0x4 + 0x10)
@@ -2153,21 +2175,22 @@ Function Invoke-AD_ComputerPolicyUpdate {
                 Clear-Output
                 Invoke-GPUpdate -Computer $Computer -Force -Boot -ErrorAction Stop
                 $TextBox_Output.text = "Group policy update request sent to $Computer with restart"
-            } Else { 
+            } ELSE { 
                 Clear-Output
                 Invoke-GPUpdate -Computer $Computer -Force -ErrorAction Stop
                 $TextBox_Output.Text = "Group policy update request sent to $Computer"
             }
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
+# restarts PC
 Function Restart-AD_Computer {
 
     IF ($ComboBox_Computers.SelectedItem -eq $null) {
         Set-Output_ADComputerNull
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             $Computer = $ComboBox_Computers.SelectedItem.ToString() 
             $UserPrompt = new-object -comobject wscript.shell
                 $Answer = $UserPrompt.popup("    Restart $Computer`?", 0, "Restart?", 0x4 + 0x10)
@@ -2178,15 +2201,15 @@ Function Restart-AD_Computer {
                 
                 Restart-Computer $Computer -Force -Confirm:$false -ErrorAction Stop
                 $TextBox_Output.text = "Restart request sent to $Computer"
-            } Else { Write-Cancelled }
-        } Catch { Write-OutError }
+            } ELSE { Write-Cancelled }
+        } CATCH { Write-OutError }
     }
 }
 
 # Groups Functions
 #===========================================================
 
-
+# Opens new Groups App
 Function New-GroupUI {  
 
 $NewGroupFrom = New-Object Windows.forms.form -Property @{
@@ -2293,15 +2316,15 @@ $Button_NewGroup_Cancel.add_Click( { $NewGroupFrom.Close(); $NewGroupFrom.Dispos
 $Button_NewGroup_OK.add_Click( { New-AD_Group })
 
 # Populate ComboBoxes
-ForEach ($Group in $AD_Groups) { [void]$ComboBox_CopyGroup.Items.Add($Group) }
+FOREACH ($Group in $AD_Groups) { [void]$ComboBox_CopyGroup.Items.Add($Group) }
 $ComboBox_CopyGroup.AutoCompleteSource = "CustomSource" 
 $ComboBox_CopyGroup.AutoCompleteMode = "SuggestAppend"
-$AD_Group | ForEach-Object { [void]$ComboBox_CopyGroup.AutoCompleteCustomSource.Add($_) }
+$AD_Group | FOREACH-Object { [void]$ComboBox_CopyGroup.AutoCompleteCustomSource.Add($_) }
 
-ForEach ($OU in $AD_OUs.CanonicalName) { [void]$ComboBox_OU.Items.Add($OU) }
+FOREACH ($OU in $AD_OUs.CanonicalName) { [void]$ComboBox_OU.Items.Add($OU) }
 $ComboBox_OU.AutoCompleteSource = "CustomSource" 
 $ComboBox_OU.AutoCompleteMode = "SuggestAppend"
-$AD_OUs.CanonicalName | ForEach-Object { [void]$ComboBox_OU.AutoCompleteCustomSource.Add($_) }
+$AD_OUs.CanonicalName | FOREACH-Object { [void]$ComboBox_OU.AutoCompleteCustomSource.Add($_) }
 
 #Defaults
 $ListBox_GroupCategory.SelectedItem = "Security"
@@ -2339,7 +2362,7 @@ Function New-AD_Group {
     $obj = $ComboBox_OU.SelectedItem.Replace(',','\,').Split('/')
     [string]$DN = "OU=" + $obj[$obj.count - 1]
     for ($i = $obj.count - 2;$i -ge 1;$i--){$DN += ",OU=" + $obj[$i]}
-    $obj[0].split(".") | ForEach-Object { $DN += ",DC=" + $_}
+    $obj[0].split(".") | FOREACH-Object { $DN += ",DC=" + $_}
     # the rest is my code
 
     $Name              = $TextBox_GroupName.text.ToString()
@@ -2350,9 +2373,8 @@ Function New-AD_Group {
 
            
     $StatusBarLabel.text = "  Creating new Group for $GroupName in $CreatedInOU OU"
-    #New-ADGroup @NewGroup -ErrorAction Stop
-
-    try {
+    
+    TRY {
 
     New-ADGroup -name $name -GroupScope $GroupScope -GroupCategory  $GroupCategory -Path $DN -ErrorAction Stop
 
@@ -2375,140 +2397,143 @@ Function New-AD_Group {
         Save-ADdata
         Set-StatusBarReady
 
-    } catch { Write-OutError }
+    } CATCH { Write-OutError }
 }
 
 
-
+# Lists all group members
 Function GroupMembers {
     
         IF ($ComboBox_Groups.SelectedItem -eq $null) {
         Set-Output_ADGroupNull
-        } Else {
-            Try {
+        } ELSE {
+            TRY {
             Clear-Output
             $TextBox_Output.text = (Get-ADGroupMember -Identity $ComboBox_Groups.SelectedItem).Name  | Sort-Object | Out-String -Width 2147483647
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
-
+# lists group info
 Function GroupInfo {
     
     IF ($ComboBox_Groups.SelectedItem -eq $null) {
     Set-Output_ADGroupNull
-    } Else {
-        Try {
+    } ELSE {
+        TRY {
         Clear-Output
         $TextBox_Output.text = Get-ADGroup $ComboBox_Groups.SelectedItem -Properties * | Format-List | Out-String -Width 2147483647
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
-  
+
+# adds a user object
 Function Add-UserMember {
 
     IF ($ComboBox_Groups.SelectedItem -eq $null) {
         Set-Output_ADGroupNull
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             $GroupOBJ = $ComboBox_Groups.Text.ToString()
             Clear-Output
             $Members = $AD_Users | Out-GridView  -Title "Select Member(s) to add to $GroupOBJ" -PassThru 
             IF ($Members.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("No Members seleceted")}
-            Else {
+            ELSE {
                 $Members = (Get-ADUser $Members -Properties *).SamAccountname 
                 Add-ADGroupMember -Identity $ComboBox_Groups.text -Members $Members -ErrorAction Stop 
                 $TextBox_Output.AppendText("Members added to $GroupOBJ Group")
             }
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
-
+# adds a computer object
 Function Add-ComputerMember {
 
    IF ($ComboBox_Groups.SelectedItem -eq $null) {
         Set-Output_ADGroupNull
-    } Else {
-        Try {
+    } ELSE {
+        TRY {
             $GroupOBJ = $ComboBox_Groups.Text.ToString()
             Clear-Output
             $Members = Get-ADComputer -Filter * | select Name, SamAccountname | Out-GridView  -Title "Select Member(s) to add to $GroupOBJ" -PassThru
             IF ($Members.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("No Members seleceted")}
-            Else {
+            ELSE {
                 Add-ADGroupMember -Identity $ComboBox_Groups.text -Members $Members.SamAccountName -ErrorAction Stop 
                 $TextBox_Output.AppendText("Members added to $GroupOBJ Group")
             }
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
-
+# adds a group object
 Function Add-GroupMember {
 
    IF ($ComboBox_Groups.SelectedItem -eq $null) {
         Set-Output_ADGroupNull
-    } Else {
-        Try {
+    } ELSE {
+        TRY {
             $GroupOBJ = $ComboBox_Groups.Text.ToString()
             Clear-Output
             $Members = Get-ADGroup -Filter * | select Name | Out-GridView  -Title "Select Member(s) to add to $GroupOBJ" -PassThru 
             IF ($Members.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("No Members seleceted")}
-            Else {
+            ELSE {
                 Add-ADGroupMember -Identity $ComboBox_Groups.text -Members $Members.SamAccountName -ErrorAction Stop 
                 $TextBox_Output.AppendText("Members added to $GroupOBJ Group")
             }
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
 
+# Remove selected objects 
 Function Remove-Member {
 
     IF ($ComboBox_Groups.SelectedItem -eq $null) {
         Set-Output_ADGroupNull 
-    } Else {
-        Try {
+    } ELSE {
+        TRY {
             Clear-Output
             $GroupOBJ = $ComboBox_Groups.Text.ToString()
             $Members = Get-ADGroup $ComboBox_Groups.SelectedItem | Get-ADGroupMember | Select-Object Name,SamAccountName | Out-GridView -Title "Select Member(s) to remove from $GroupOBJ" -PassThru
             IF ($Members.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("Groups has no members")}
-            Else{
+            ELSE{
                 Get-ADGroup $ComboBox_Groups.SelectedItem | remove-adgroupmember -Members $members.SamAccountName -Confirm:$false -ErrorAction Stop
                 $TextBox_Output.AppendText("Removed members from $GroupOBJ Group")
             }
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
-
+# Moves group to new organisational unit
 Function Move-AD_Group {
 
     IF ($ComboBox_Groups.SelectedItem -eq $null) {
         Set-Output_ADGroupNull
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             Clear-Output
             $ORG = $AD_OUs | Out-GridView -PassThru -Title "Select Organizational Unit"
             IF ($ORG.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("Groups has no members")}
-            Else {
+            ELSE {
                 $Group = $ComboBox_Groups.SelectedItem.ToString() 
                 $ORG_move = $ORG.CanonicalName
                 $Group_Move = Get-ADGroup $ComboBox_$Groups.SelectedItem -Properties * | select DistinguishedName 
                 Move-ADObject -Identity $Computer_Move.DistinguishedName -TargetPath $ORG.DistinguishedName
                 $TextBox_Output.text = "Moved $Group to $ORG_move"
             }
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
+# Removes Group
 Function Remove-AD_Group {
 
     IF ($ComboBox_Groups.SelectedItem -eq $null) {
         Set-Output_ADGroupNull
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
         $Group = $ComboBox_Groups.Text.ToString()
         $UserPrompt = new-object -comobject wscript.shell
                 $Answer = $UserPrompt.popup("        Remove $Group from AD?", 0, "Remove", 0x4 + 0x10)
@@ -2522,13 +2547,14 @@ Function Remove-AD_Group {
                 [void]$ComboBox_Groups.Items.remove($Group)
                 [void]$ComboBox_Groups.AutoCompleteCustomSource.Remove($Group) 
                 Save-ADdata 
-            } Else {Write-Cancelled }
-        } Catch { Write-OutError }
+            } ELSE {Write-Cancelled }
+        } CATCH { Write-OutError }
     }
 }
 
 #===================== Menu Functions ======================
 
+# Exports all user detail to CSV
 Function CSVAdUserExport {
 
     $StatusBarLabel.text = "  Export User Objects to CSV..."
@@ -2551,10 +2577,10 @@ Function CSVAdUserExport {
             Clear-Output
             Set-StatusBarReady
             $TextBox_Output.AppendText("Exported user acconunts to $SaveOut")
-        } Else { Write-Cancelled }
+        } ELSE { Write-Cancelled }
 }
 
-
+# Exports all computer detail to CSV
 Function CSVComputerExport { 
     
     $StatusBarLabel.text = "  Export Computer Objects to CSV..."
@@ -2572,10 +2598,10 @@ Function CSVComputerExport {
             Clear-Output
             Set-StatusBarReady
             $TextBox_Output.AppendText("Exported Computer acconunts to $SavePath")
-        } Else { Write-Cancelled }
+        } ELSE { Write-Cancelled }
 } 
 
-
+# Exports all Groups detail to CSV
 Function CSVGroupsExport {
 
     $StatusBarLabel.text = "  Export Group Objects to CSV..."
@@ -2588,7 +2614,7 @@ Function CSVGroupsExport {
 
             $Groups = Get-ADGroup -Filter * -Properties Name,groupcategory 
             $List = @()
-            $List += Foreach($Group in $Groups) { New-Object PSObject -Property @{
+            $List += FOREACH($Group in $Groups) { New-Object PSObject -Property @{
 
             GroupName = $Group.Name
             Type      = $Group.GroupCategory
@@ -2603,7 +2629,7 @@ Function CSVGroupsExport {
             Clear-Output
             Set-StatusBarReady
             $TextBox_Output.AppendText("Exported Groups acconunts to $SavePath")
-        } Else { Write-Cancelled }
+        } ELSE { Write-Cancelled }
 }
 
 #=========================================================================#
@@ -2635,7 +2661,7 @@ Function Enable-Exchange {
     $StatusBarLabel.text = "  Loading Exchange Objects"
 
     #Connect to Exchange
-    try { 
+    TRY { 
 
         $ConnectionUri = $Textbox_Exchange.text
         $UserCredential = Get-Credential
@@ -2648,24 +2674,24 @@ Function Enable-Exchange {
             $UserPrompt = new-object -comobject wscript.shell
             $Answer = $UserPrompt.popup("Load Exchange data from local cache? `n`nCache was Last updated on $LastWriteTime", 0, " Load from cache", 0x4 + 0x20)
 
-            switch ($Answer) {
+            SWITCH ($Answer) {
 
             6           { Import-ExchangeXML }
             Default     { Import-ExchangeData }  
             
             }
         
-        } Else { Import-ExchangeData }
+        } ELSE { Import-ExchangeData }
          
-        ForEach ($Mailbox in $Exchange_Mailboxes) { [void]$ComboBox_Mailbox.Items.Add($Mailbox) }
+        FOREACH ($Mailbox in $Exchange_Mailboxes) { [void]$ComboBox_Mailbox.Items.Add($Mailbox) }
         $ComboBox_Mailbox.AutoCompleteSource = "CustomSource" 
         $ComboBox_Mailbox.AutoCompleteMode = "SuggestAppend"
-        $Exchange_Mailboxes | ForEach-Object { [void]$ComboBox_Mailbox.AutoCompleteCustomSource.Add($_) }
+        $Exchange_Mailboxes | FOREACH-Object { [void]$ComboBox_Mailbox.AutoCompleteCustomSource.Add($_) }
 
-        ForEach ($DistributionGroup in $Exchange_DistributionGroups) { [void]$ComboBox_Distributionlist.Items.Add($DistributionGroup) }
+        FOREACH ($DistributionGroup in $Exchange_DistributionGroups) { [void]$ComboBox_Distributionlist.Items.Add($DistributionGroup) }
         $ComboBox_Distributionlist.AutoCompleteSource = "CustomSource" 
         $ComboBox_Distributionlist.AutoCompleteMode = "SuggestAppend"
-        $Exchange_DistributionGroups | ForEach-Object { [void]$ComboBox_Distributionlist.AutoCompleteCustomSource.Add($_) }
+        $Exchange_DistributionGroups | FOREACH-Object { [void]$ComboBox_Distributionlist.AutoCompleteCustomSource.Add($_) }
 
         $Panel_Exchange.Enabled = $true
         $Menu_Exchange.Enabled = $true
@@ -2676,7 +2702,7 @@ Function Enable-Exchange {
         $TextBox_Output.AppendText("*** Exchange objects have been loaded ***")  
                                 
         
-    } catch {
+    } CATCH {
         Write-OutError
         Set-StatusBarReady
         $GroupBox_ConnectToExchange.Enabled = $true
@@ -2694,9 +2720,9 @@ Function Start-Mailbox_Action {
         $TextBox_Output.AppendText("No App Selected") 
     }
 
-    Else { 
-      try { 
-        switch ($ListBox_Mailbox.SelectedItem) {
+    ELSE { 
+      TRY { 
+        SWITCH ($ListBox_Mailbox.SelectedItem) {
         
             "Mailbox info"                                      { Get-MailBox_info }
             "Get Mailbox size"                                  { Get-MailBox_Size }
@@ -2708,16 +2734,16 @@ Function Start-Mailbox_Action {
             "Remove all full access permissions"                { Remove-MailBox_AllFullAccessPermissions }
             "Enable/Disable ActiveSync"                         { Set-Mailbox_ActiveSync }
             "Enable/Disable OWA access"                         { Set-Mailbox_OWA }
-            "Set out of office message"                         {  }
+            "Set out of office message"                         { Set-Mailbox_Outofoffice }
             "Set mail forwarding"                               { Set-Mailbox_ForwardingAddress }
             "Convert to ..."                                    { Set-Mailbox_Type }
             "Hide/un-hide form global address list"             { Set-Mailbox_ToHidden}
             "Move to Database"                                  { Move-Mailbox_DataBase }
-            "Export to .PST"                                    {  }
+            "Export to .PST"                                    { Export-Mailbox }
             "Remove mailbox"                                    { Remove-Mailbox_fromuser }
 
             } 
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
@@ -2730,20 +2756,22 @@ Function Start-Distributionlist_Action {
         $TextBox_Output.AppendText("No App Selected") 
     }
 
-    Else { 
-      try { 
-        switch ($ListBox_Mailbox.SelectedItem) {
+    ELSE { 
+      TRY { 
+        SWITCH ($ListBox_Distributionlist.SelectedItem) {
         
-            "Distribution Group info"                           {}
-            "List all members"                                  {}
-            "Add members"                                       {}
-            "Remove members"                                    {}
-            "Set Owner"                                         {}
-            "Hide/un-hide form global address list"             {}
-            "Remove Distribution Group"                         {}
+            "Distribution Group info"                           { Get-DL_info }
+            "List all members"                                  { Get-DL_Members }
+            "Add members"                                       { Add-DL_Members }
+            "Copy members"                                      { Copy-DL_Members }
+            "Remove members"                                    { Remove-DL_Members }
+            "Remove all members"                                { Remove-DL_Members_all}        
+            "Set Owner"                                         { Set_DL_Manger }
+            "Hide/un-hide form global address list"             { Set-Dl_ToHidden }
+            "Remove Distribution Group"                         { Remove_DL }
     
             } 
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
 
@@ -2758,15 +2786,10 @@ Function Set-Output_DistributionlistNull {
     $TextBox_Output.AppendText("No Distribution Group Selected")
 }
 
-Function Set-Output_ContactsNull {
-    Clear-Output
-    $TextBox_Output.AppendText("No Contact Selected")
-}
-
 # Save Exchange data to cache
 Function Save-Exchangedata {
         
-    Try {
+    TRY {
         
         New-Object PSObject -Property @{
 
@@ -2776,14 +2799,16 @@ Function Save-Exchangedata {
             Groups          = $Exchange_DistributionGroups  
                     
         } | Export-Clixml "$env:PUBLIC\Ultimate Administrator Console\Exchange.xml"
-    } Catch { Write-OutError }
+    } CATCH { Write-OutError }
 }
 
 #===================== Mailbox Functions ======================
 
+# Enables a mailbox for an existing Active Directory user 
+# This does not define the database of the mailbox isn't able to please use the move mailbox command to move it to the desired mailbox 
 function Enable-Mailbox_foruser {
    
-    Try{
+    TRY{
 
         $list = $Exchange_Users | Out-GridView -PassThru -Title "Select User"
         $User = $list.ToString()
@@ -2802,16 +2827,16 @@ function Enable-Mailbox_foruser {
         Save-Exchangedata
         Set-StatusBarReady
 
-    } Catch { Write-OutError }
+    } CATCH { Write-OutError }
 }
 
-
+# Disable the mailbox but does not remove the Active Directory account 
 function Remove-Mailbox_fromuser {    
     
     IF ($ComboBox_Mailbox.SelectedItem -eq $null) {
         Set-Output_MailBoxNull 
-    } Else {
-    Try {
+    } ELSE {
+    TRY {
 
         $UserAccount = $ComboBox_Mailbox.SelectedItem.ToString()
         $UserPrompt = new-object -comobject wscript.shell
@@ -2834,196 +2859,231 @@ function Remove-Mailbox_fromuser {
                 $TextBox_Output.text = "Mailbox $Mailbox is now Deleted"
                 Save-Exchangedata
             
-            } Else { Write-Cancelled } 
-        } Catch { Write-OutError }
+            } ELSE { Write-Cancelled } 
+        } CATCH  { Write-OutError }
     }
 }
 
-
+# Provides information about mailbox 
 function Get-MailBox_info {    
     
     IF ($ComboBox_Mailbox.SelectedItem -eq $null) {
         Set-Output_MailBoxNull 
-    } Else {
-    Try {
+    } ELSE {
+    TRY {
         Clear-Output
         $TextBox_Output.text = Get-Mailbox $ComboBox_Mailbox.SelectedItem -ErrorAction Stop | Format-List | Out-String -Width 2147483647 
-        } Catch { Write-OutError }
+        } CATCH  { Write-OutError }
     }
 }
 
-
+# Provides size statistics for mailbox 
 function Get-MailBox_Size {    
 
     IF ($ComboBox_Mailbox.SelectedItem -eq $null) {
         Set-Output_MailBoxNull 
-    } Else {
-    Try {
+    } ELSE {
+    TRY {
         Clear-Output
         $TextBox_Output.text = Get-MailboxStatistics $ComboBox_Mailbox.SelectedItem -ErrorAction Stop | Format-List | Out-String -Width 2147483647                      
                     
-        } Catch { Write-OutError }
+        } CATCH  { Write-OutError }
     }
 }
 
+# Enables or disables active sync depending on active sync state 
 function Set-Mailbox_ActiveSync {    
     
     IF ($ComboBox_Mailbox.SelectedItem -eq $null) {
         Set-Output_MailBoxNull 
-    } Else {
-    Try {
+    } ELSE {
+    TRY {
         Clear-Output 
         $MailBox = [string]$ComboBox_Mailbox.SelectedItem
         $ActiveSync = (Get-CASMailbox -Identity $MailBox).ActiveSyncEnabled
-        Switch ($ActiveSync) {
+        SWITCH ($ActiveSync) {
                 true   { Set-CASMailbox $MailBox -ActiveSyncEnabled:$false ; $TextBox_Output.AppendText("ActiveSync is now disabled for $MailBox")  }
                 false  { Set-CASMailbox $MailBox -ActiveSyncEnabled:$true  ; $TextBox_Output.AppendText("ActiveSync is now enabled for $MailBox")  }  
             }   
-        } Catch { Write-OutError }
+        } CATCH  { Write-OutError }
     }
 }
 
+# Enables or disabled access to OWA mailbox depending on state 
 function Set-Mailbox_OWA {    
     
     IF ($ComboBox_Mailbox.SelectedItem -eq $null) {
         Set-Output_MailBoxNull 
-    } Else {
-    Try {
+    } ELSE {
+    TRY {
         Clear-Output 
         $MailBox = [string]$ComboBox_Mailbox.SelectedItem
         $OWA = (Get-CASMailbox -Identity $MailBox).OWAEnabled
-        Switch ($OWA) {
+        SWITCH ($OWA) {
                 true   { Set-CASMailbox $MailBox -OWAEnabled:$false ; $TextBox_Output.AppendText("OWA is now disabled for $MailBox")  }
                 false  { Set-CASMailbox $MailBox -OWAEnabled:$true  ; $TextBox_Output.AppendText("OWA is now enabled for $MailBox")  }  
             }   
-        } Catch { Write-OutError }
+        } CATCH  { Write-OutError }
     }
 }
 
-
+# Set email forwarding address if none has been set or removes it if there is an active forwarding address 
 function Set-Mailbox_ForwardingAddress {    
     
     IF ($ComboBox_Mailbox.SelectedItem -eq $null) {
         Set-Output_MailBoxNull 
-    } Else {
-    Try {
+    } ELSE {
+    TRY {
         Clear-Output 
         $MailBox = [string]$ComboBox_Mailbox.SelectedItem
         $Forwarding = (Get-Mailbox -Identity $MailBox).ForwardingAddress
         IF( $Forwarding.Length -eq '0' ) {
         $Forwarding_mailbox = $Exchange_Mailboxes | Out-GridView -PassThru -Title "Select Mailbox"
             IF($Forwarding_mailbox.Length -eq '0'){ Write-OutInfo ; $TextBox_Output.text = "No mailbox selected"}
-            Else {
+            ELSE {
                 Set-Mailbox -Identity $MailBox -ForwardingAddress $Forwarding_mailbox
                 $TextBox_Output.text = "$MailBox Emails are been forward to $Forwarding_mailbox"
                 } 
             }
-        Else {
+        ELSE {
             $UserPrompt = new-object -comobject wscript.shell
             $Answer = $UserPrompt.popup("  Remove Forwarding emails to $Forwarding from $MailBox mailbox?", 0, "Remove Mailbox", 0x4 + 0x10)
                 IF ($Answer -eq 6) {
                     Clear-Output
                     Set-Mailbox -Identity $MailBox -ForwardingAddress $null
                     $TextBox_Output.text = "Removed Forwarding emails to $Forwarding from $MailBox mailbox"
-                    } Else { Write-Cancelled }
+                    } ELSE { Write-Cancelled }
               }   
-        } Catch { Write-OutError }
+        } CATCH  { Write-OutError }
     }
 }
 
-
+# Lists all mailboxes this with full access to mailbox  
 function Get-MailBox_Permissions {    
      
     IF ($ComboBox_Mailbox.SelectedItem -eq $null) {
         Set-Output_MailBoxNull 
-    } Else {
-    Try {
+    } ELSE {
+    TRY {
         $Mailbox = $ComboBox_Mailbox.SelectedItem.ToString()
         Clear-Output
         $results = Get-MailboxPermission $Mailbox -ErrorAction Stop | Where-Object { ($_.IsInherited -eq $False) -and ($_.AccessRights -like "*FullAccess*") -and -not ($_.User -like "NT AUTHORITY\SELF") }| Select-Object user, accessrights, IsInherited | Out-String -Width 2147483647 
-        if ($results.Length -eq '0')  { Write-OutInfo ; $TextBox_Output.text = "No User has permissons to $MailBox mailbox"}
-        else { $TextBox_Output.AppendText($results) }
+        IF ($results.Length -eq '0')  { Write-OutInfo ; $TextBox_Output.text = "No User has permissons to $MailBox mailbox"}
+        ELSE { $TextBox_Output.AppendText($results) }
             
-        } Catch { Write-OutError }
+        } CATCH  { Write-OutError }
     }
 }
 
+
+# Adds full access permissions to specified mailbox 
 function Add-MailBox_FullAccessPermissions {    
     
     IF ($ComboBox_Mailbox.SelectedItem -eq $null) {
         Set-Output_MailBoxNull 
-    } Else {
-    Try {
+    } ELSE {
+    TRY {
         Clear-Output
         $Mailbox = $ComboBox_Mailbox.SelectedItem.ToString()
         $Member = $Exchange_Mailboxes | Out-GridView -PassThru -Title "Select Mailbox" 
-        if ($Member.Length -eq '0')  { Write-OutInfo ; $TextBox_Output.text = "No Mailbox Selected"}
-        Else { 
+        IF ($Member.Length -eq '0')  { Write-OutInfo ; $TextBox_Output.text = "No Mailbox Selected"}
+        ELSE { 
             Add-MailboxPermission -Identity $Mailbox -User $Member -AccessRights FullAccess -InheritanceType All -Confirm:$false -ErrorAction Stop 
             $TextBox_Output.text = "$Member has been given full permissions to $Mailbox"
             }
-        } Catch { Write-OutError }
+        } CATCH  { Write-OutError }
     }
 }
 
+# Adds send as permissions to specified mailbox 
 function Add-MailBox_SendasPermissions {    
     
     IF ($ComboBox_Mailbox.SelectedItem -eq $null) {
         Set-Output_MailBoxNull 
-    } Else {
-    Try {
+    } ELSE {
+    TRY {
         Clear-Output
         $Mailbox = $ComboBox_Mailbox.SelectedItem.ToString()
         $List = $Exchange_Mailboxes | Out-GridView -PassThru -Title "Select Mailbox"
         $Member = $List.SamAccountName.ToString()
-        if ($Member.Length -eq '0')  { Write-OutInfo ; $TextBox_Output.text = "No Mailbox Selected"}
-            Else {
+        IF ($Member.Length -eq '0')  { Write-OutInfo ; $TextBox_Output.text = "No Mailbox Selected"}
+            ELSE {
             Add-RecipientPermission -Identity $Mailbox -AccessRights SendAs -Trustee $Member -Confirm:$false -ErrorAction Stop
             $TextBox_Output.text = "$Member has been given Send as permissions to $Mailbox"
             }
-        } Catch { Write-OutError }
+        } CATCH {  Write-OutError }
     }
 }
  
+ # Add send on behalf permissions to specified mailbox 
 function Add-MailBox_SendOnBehalfToPermissions {    
     
     IF ($ComboBox_Mailbox.SelectedItem -eq $null) {
         Set-Output_MailBoxNull 
-    } Else {
-    Try {
+    } ELSE {
+    TRY {
         Clear-Output
         $Mailbox = $ComboBox_Mailbox.SelectedItem.ToString()
         $List = $Exchange_Mailboxes | Out-GridView -PassThru -Title "Select Mailbox" 
         $Member = $List.SamAccountName.ToString()
-        if ($Member.Length -eq '0')  { Write-OutInfo ; $TextBox_Output.text = "No Mailbox Selected"}
-        Else {
+        IF ($Member.Length -eq '0')  { Write-OutInfo ; $TextBox_Output.text = "No Mailbox Selected"}
+        ELSE {
             Set-Mailbox -Identity $Mailbox -GrantSendOnBehalfTo @{add=$Member} -ErrorAction Stop
             $TextBox_Output.text = "$Member has been given Send On Behalf To permissions to $Mailbox"
             }
-        } Catch { Write-OutError }
+        } CATCH  { Write-OutError }
+    }
+}
+
+# Set out of office message for specified mailbox 
+# If specified mailbox has an out of office message will disable 
+function Set-Mailbox_Outofoffice {    
+    
+    IF ($ComboBox_Mailbox.SelectedItem -eq $null) {
+        Set-Output_MailBoxNull 
+    } ELSE {
+    TRY {
+        Clear-Output
+        $Mailbox = $ComboBox_Mailbox.SelectedItem.ToString()
+        IF ((Get-MailboxAutoReplyConfiguration -Identity $Mailbox).AutoReplyState -eq "Disabled") {
+             [void][Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic')
+             $title = 'Set out of office message'
+             $msg   = 'Enter message:'
+             $Message = [Microsoft.VisualBasic.Interaction]::InputBox($msg, $title)
+             Set-MailboxAutoReplyConfiguration -Identity $Mailbox -ExternalMessage $Message -InternalMessage $Message -AutoReplyState "Enabled"
+             $TextBox_Output.text = "$Mailbox Message has been set to $Message"
+
+        } ELSE { 
+        
+            Set-MailboxAutoReplyConfiguration -Identity $Mailbox -AutoReplyState "Disabled"
+            $TextBox_Output.text = "$Mailbox Out of office Message has been removed"
+
+            }              
+        } CATCH  { Write-OutError }
     }
 }
 
 
+# Will change the mailbox type from: regular, shared, equipment or room
 function Set-Mailbox_Type {
     
     IF ($ComboBox_Mailbox.SelectedItem -eq $null) {
     Set-Output_MailBoxNull 
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             Clear-Output
             $Mailbox = $ComboBox_Mailbox.SelectedItem.ToString()
         
                 $Type = @{
                 'Regular'           = 'Regular mailboxes are the mailboxes that get assigned to every individual Exchange user'
                 'Shared'            = 'Shared mailboxes are usually configured for multiple user access'
-                'Equipment'         = 'These mailboxes are used for resources that are not location-specific like the portable system, microphones, projectors, or company cars.'
-                'Room'              = 'This kind of mailbox gets assigned to different meeting locations, for example, auditoriums, conference and training rooms.'
+                'Equipment'         = 'These mailboxes are used for resources that are not location-specIFic like the portable system, microphones, projectors, or company cars.'
+                'Room'              = 'This kind of mailbox gets assigned to dIFferent meeting locations, for example, auditoriums, conference and training rooms.'
             }
             
             $Result = $Type | Out-GridView -PassThru  -Title 'Make a  selection'
         
-            Switch ($Result) {
+            SWITCH ($Result) {
                 { $Result.Name -eq 'Regular'   }  { $Type = 'Regular'   }
                 { $Result.Name -eq 'Shared'    }  { $Type = 'Shared'    }
                 { $Result.Name -eq 'Equipment' }  { $Type = 'Equipment' }
@@ -3033,76 +3093,99 @@ function Set-Mailbox_Type {
             Set-mailbox $Mailbox -type $Type -Confirm:$false
             $TextBox_Output.text = "Convering $Mailbox to $Type" 
 
-        } Catch { Write-OutError }
+        } CATCH  { Write-OutError }
     }
 }
-
 
 # removes selected users send as and full mailbox permissions
 function Remove-MailBox_FullAccessPermissions {
     IF ($ComboBox_Mailbox.SelectedItem -eq $null) {
         Set-Output_MailBoxNull 
-    } Else {
-    Try {
+    } ELSE {
+    TRY {
         $MailBox = $ComboBox_Mailbox.SelectedItem.ToString()
         Clear-Output
         $results = Get-MailboxPermission $MailBox -ErrorAction Stop | Where-Object { ($_.IsInherited -eq $False) -and ($_.AccessRights -like "*FullAccess*") -and -not ($_.User -like "NT AUTHORITY\SELF") } | Select-Object User, Accessrights | Out-GridView -Title "Select User(s) to remove Fullaccess from $MailBox" -PassThru
         IF( $results.Length -eq '0' )  { Write-OutInfo ; $TextBox_Output.text = "No User has Fullaccess permissons to $MailBox mailbox"}
-        Else  { 
+        ELSE  { 
             Remove-MailboxPermission -Identity $MailBox -User $results.User -AccessRights fullaccess -Confirm:$false -ErrorAction Stop 
             $TextBox_Output.text = "Fullaccess permissons have been removed from $MailBox mailbox"
             }            
-        } Catch { Write-OutError }
+        } CATCH  { Write-OutError }
     }
 }
   
 # Removes all access to mailbox
 function Remove-MailBox_AllFullAccessPermissions {
-    Try {
+    TRY {
         $MailBox = $ComboBox_Mailbox.SelectedItem.ToString()
         Clear-Output
         $results = Get-MailboxPermission $MailBox -ErrorAction Stop | Where-Object { ($_.IsInherited -eq $False) -and ($_.AccessRights -like "*FullAccess*") -and -not ($_.User -like "NT AUTHORITY\SELF") } 
         IF($results.Length -eq '0') { Write-OutInfo ; $TextBox_Output.text = "No User has Fullaccess permissons to $MailBox mailbox"}
-        Else  {
-            Foreach($User in $results.user) { Remove-MailboxPermission -Identity $MailBox -User $User -Confirm:$false -AccessRights fullaccess -ErrorAction Stop }
+        ELSE  {
+            FOREACH($User in $results.user) { Remove-MailboxPermission -Identity $MailBox -User $User -Confirm:$false -AccessRights fullaccess -ErrorAction Stop }
             $TextBox_Output.text = "All Fullaccess permissons have been removed from $MailBox mailbox"
         }           
-    } Catch { Write-OutError }
+    } CATCH  { Write-OutError }
 }
 
-# Sets HiddenFromAddressListsEnabled to true for each selected Mailbox(s) (Not DirSynced)
+# Sets HiddenFromAddressListsEnabled to true for each selected Mailbox(s) 
 function Set-Mailbox_ToHidden{
 
   IF ($ComboBox_Mailbox.SelectedItem -eq $null) {
     Set-Output_MailBoxNull 
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             Clear-Output
             $Mailbox = $ComboBox_Mailbox.SelectedItem.ToString()
             $Result  = (get-mailbox $Mailbox).HiddenFromAddressListsEnabled
             
-            Switch ($Result) { 
+            SWITCH ($Result) { 
             
             false { Set-Mailbox -Identity $Mailbox -HiddenFromAddressListsEnabled $true ; $TextBox_Output.text = "$Mailbox to is now hidden from global address list" }
             true { Set-Mailbox -Identity $Mailbox -HiddenFromAddressListsEnabled $false ; $TextBox_Output.text = "$Mailbox to is now visble in global address list"  }
             
             }
-        } Catch { Write-OutError }
+        } CATCH  { Write-OutError }
     }
 }
 
+#exports mail box to PST - must be full UNC path (will not with with mapped drives)
+function Export-Mailbox {
+
+  IF ($ComboBox_Mailbox.SelectedItem -eq $null) {
+    Set-Output_MailBoxNull 
+        } ELSE {
+        TRY {
+            Clear-Output
+            $Mailbox = $ComboBox_Mailbox.SelectedItem.ToString()
+            
+                    $SaveFile = New-Object -TypeName System.Windows.Forms.SaveFileDialog
+                    $SaveFile.Title = "Export PST"
+                    $SaveFile.FileName = "$Mailbox Export"
+                    $SaveFile.Filter = "Pst Files (*.pst)|*.pst"
+                    $SaveFile.ShowDialog()
+
+                    $Path = $SaveFile.FileName.ToString()
+
+                    New-MailboxExportRequest -Mailbox $Mailbox -FilePath $Path -ErrorAction Stop
+                    $TextBox_Output.text = "$Mailbox is now been exported to $Path `n `nNote: this will take some time Depending on the mailbox size "  
+
+        } CATCH { Write-OutError }
+    }
+}
 
 # Moves mailbox to requested database
 function Move-Mailbox_DataBase {
     IF ($ComboBox_Mailbox.SelectedItem -eq $null) {
     Set-Output_MailBoxNull 
-        } Else {
-        Try {
+        } ELSE {
+        TRY {
             Clear-Output
             $Mailbox = $ComboBox_Mailbox.SelectedItem.ToString()
             $DataBase = (get-mailboxdatabase | Out-GridView -Title "Select Database" -PassThru).name
             IF($DataBase.Length -eq '0') { Write-OutInfo ; $TextBox_Output.text = "No DataBase selected"}
-            Else {            
+            ELSE {            
                 $UserPrompt = new-object -comobject wscript.shell
                 $Answer = $UserPrompt.popup("Move $Mailbox to $DataBase datebase?", 0, "Gpupdate", 0x4 + 0x10)
                 IF ($Answer -eq 6) {
@@ -3110,109 +3193,233 @@ function Move-Mailbox_DataBase {
                 # check for account permissions before running command
                 New-MoveRequest -Identity $Mailbox -TargetDatabase $DataBase -ErrorAction Stop 
                 $TextBox_Output.text = "$Mailbox move requested to $DataBase datebase has started"
-                } Else { Write-Cancelled }
+                } ELSE { Write-Cancelled }
             }
-        } Catch { Write-OutError }
+        } CATCH { Write-OutError }
     }
 }
-
-
 
 
 #================== Distribution Group Functions ==================
 
-
-<# Creates new named distribution group and gives option to add members
-function New-365_DistributionGroup {
-    $Name = Read-Host -Prompt "Enter email Distribution Group name" 
-    New-DistributionGroup -Name $Name -Confirm
-    $Confirmation = Read-Host "Add Members to $Name[y/n]"
-    while ($confirmation -ne "y") {
-        if ($confirmation -eq 'n') { Break } 
-        $confirmation = Read-Host "Add Members to $Name[y/n]" 
-    }
-    if ($confirmation -eq "y") {
-        $Members = ($Mailbox | Out-GridView -Title "Select Users to give FullAccess to $Mailbox" -PassThru).UserPrincipalName 
-        foreach ($Member in $Members) {
-            Add-DistributionGroupMember -Identity $Name -User $Member -Confirm:$True 
+function New-DL {    
+    
+TRY {
+    Clear-Output
+    [void][Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic')
+    $title = 'New Distribution list'
+    $msg   = 'Enter Distribution list name:'
+    $Name = [Microsoft.VisualBasic.Interaction]::InputBox($msg, $title)
+    IF($Name.Length -eq '0'){ Write-Cancelled } # ; $TextBox_Output.text = "`n`n Name cannot have 0 Characters"}
+    ELSE { 
+    
+        New-DistributionGroup -Name $Name -ErrorAction Stop 
+        Start-Sleep 0.2
+        $Script:Exchange_DistributionGroups += $Name
+        [void]$ComboBox_Distributionlist.Items.add($Name)
+        [void]$ComboBox_Distributionlist.AutoCompleteCustomSource.add($Name) 
+        $TextBox_Output.text = "$Name distribution has been created"
+        Save-Exchangedata
+                       
         }
-    }
-    Write-Host "Updating User Index..." -ForegroundColor Green
-    $script:DL = Get-DistributionGroup
+    } CATCH { Write-OutError }
 }
-# List members from selected distribution group with option to export to .csv
-function Get-365_DistributionGroupMembers {
-    $DL = ($DL | Out-GridView -Title 'Select Distribution Group' -PassThru).PrimarySmtpAddress
-    Get-DistributionGroupMember -Identity $DL | Select-Object Name, PrimarySmtpAddress, Office, Department
-    Start-Sleep -Milliseconds 1
-    $Confirmation = Read-Host "Export $DL user list to CSV?[y/n]"
-    while ($confirmation -ne "y") {
-        if ($confirmation -eq 'n') { Break } 
-        $confirmation = Read-Host "Export $DL user list to CSV?[y/n]"
-    }
-    if ($confirmation -eq "y") {
-        $DLFileName = $DL.Substring(0, $DL.IndexOf('@'))
-        Get-DistributionGroupMember -Identity $DL | Select-Object Name, PrimarySmtpAddress, Office, Department | Export-Csv -Path "$env:USERPROFILE\desktop\$DLFileName.csv"
-    }
-}
-# Added new members to selected distribution group 
-function Add-365_DistributionGroupMember {
-    $DL = ($DL | Out-GridView -Title 'Select Distribution Group' -PassThru).PrimarySmtpAddress
-    $Members = ($Members | Out-GridView -Title 'Select Member' -PassThru).UserPrincipalName
-    foreach ($Member in $Members) {
-        Add-DistributionGroupMember -Identity $DL.Name -Member $Member -Confirm:$true
-    }
-    Write-Host "Updating User Index..." -ForegroundColor Green
-    $script:DL = Get-DistributionGroup
-}
-# Removes members from selected distribution group 
-function Remove-365_DistributionGroupMember {
-    $DL = ($DL | Out-GridView -Title 'Select Distribution Group' -PassThru).PrimarySmtpAddress
-    $Members = (Get-DistributionGroupMember -Identity $DL | Out-GridView -Title 'Select Distribution Group' -PassThru).name 
-    foreach ($Member in $Members) {
-        Remove-DistributionGroupMember -Identity $DL -Member $Member -Confirm:$true
-    }
-    Write-Host "Updating User Index..." -ForegroundColor Green
-    $script:DL = Get-DistributionGroup
-}
-# Exports all distribution groups menmbers to .CSV for each distribution group
-function Export-365_AllDistributionGroupAndMembers { 
-    $DL = $DL.primarysmtpaddress
-    New-Item -ItemType Directory -Path "$env:USERPROFILE\desktop\ALL_DL_$FolderName"
-    foreach ($list in $DL) {
-        $DLFileName = $list.Substring(0, $list.IndexOf('@'))
-        Get-DistributionGroupMember -Identity $list | Select-Object Name, PrimarySmtpAddress, Office, Department | Export-Csv -Path "$env:USERPROFILE\desktop\ALL_DL_$FolderName\$DLFileName.csv"
-        Write-Host "Exporting $list to $env:USERPROFILE\desktop\ALL_DL_$FolderName" -ForegroundColor Green
+
+
+
+# Gets distribution list info 
+function Get-DL_info {    
+    
+    IF ($ComboBox_Distributionlist.SelectedItem -eq $null) {
+        Set-Output_DistributionlistNull
+    } ELSE {
+    TRY {
+        Clear-Output
+        $TextBox_Output.text = Get-DistributionGroup $ComboBox_Distributionlist.SelectedItem -ErrorAction Stop | Format-List | Out-String -Width 2147483647 
+        } CATCH { Write-OutError }
     }
 }
 
-# Sets HiddenFromAddressListsEnabled to true for each selected distribution group (Not DirSynced)
-function Set-365_DistributionGroupToHidden {
-    $DL = ($DL | Where-Object { $_.HiddenFromAddressListsEnabled -eq $false } | Where-Object { $_.IsDirSynced -eq $false } | Out-GridView -Title "Select Distribution Group(s) - you can shift/ctrl click multiple Group(s)" -PassThru).PrimarySmtpAddress
-    foreach ($list in $DL) {
-        Set-DistributionGroup -Identity $list -HiddenFromAddressListsEnabled $true 
-        Write-Host "$list is now hidden from global address list" -ForegroundColor Green
+# Shows distribution list members
+function Get-DL_Members {    
+    
+    IF ($ComboBox_Distributionlist.SelectedItem -eq $null) {
+        Set-Output_DistributionlistNull
+    } ELSE {
+    TRY {
+        Clear-Output
+        $results = Get-DistributionGroupMember $ComboBox_Distributionlist.SelectedItem -ErrorAction Stop | Out-String -Width 2147483647 
+        IF ($results.Length -eq '0')  { Write-OutInfo ; $TextBox_Output.text = "Disturbed group has no members"}
+        ELSE { $TextBox_Output.AppendText($results) }
+        } CATCH { Write-OutError }
     }
-    Write-Host "Updating Distribution Groups Index..." -ForegroundColor Green
-    $script:DL = Get-DistributionGroup
 }
 
-# removes HiddenFromAddressListsEnabled from selected distribution groups (Not DirSynced)
-function Set-365_DistributionGroupToNotHidden {
-    $DL = ($DL | Where-Object { $_.HiddenFromAddressListsEnabled -eq $true } | Where-Object { $_.IsDirSynced -eq $false } | Out-GridView -Title "Select Distribution Group(s) - you can shift/ctrl click multiple Group(s)" -PassThru).PrimarySmtpAddress
-    foreach ($list in $DL) {
-        Set-DistributionGroup -Identity $list -HiddenFromAddressListsEnabled $false
-        Write-Host "$list is no longer hidden from global address list" -ForegroundColor Green
+# Add members to distribution list
+function Add-DL_Members {    
+    
+    IF ($ComboBox_Distributionlist.SelectedItem -eq $null) {
+        Set-Output_DistributionlistNull
+    } ELSE {
+    TRY {
+        $DL = $ComboBox_Distributionlist.Text.ToString()
+        Clear-Output
+        $Members = $Exchange_Mailboxes | Out-GridView  -Title "Select Member(s) to add to $DL" -PassThru 
+        IF ($Members.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("No Members seleceted")}
+        ELSE {
+            FOREACH($Mailbox in $Members) {            
+            Add-DistributionGroupMember -Identity $DL -Member $Mailbox -ErrorAction SilentlyContinue 
+                }
+            $TextBox_Output.AppendText("Members added to $DL Group")    
+            }
+        } CATCH { Write-OutError }
     }
-    Write-Host "Updating Distribution Groups Index..." -ForegroundColor Green
-    $script:DL = Get-DistributionGroup
 }
 
-#>
+# Copy members from distribution list
+function Copy-DL_Members {    
+    
+    IF ($ComboBox_Distributionlist.SelectedItem -eq $null) {
+        Set-Output_DistributionlistNull
+    } ELSE {
+    TRY {
+        $DL = $ComboBox_Distributionlist.Text.ToString()
+        Clear-Output
+        $Copy_DL = $Exchange_DistributionGroups | Out-GridView  -Title "Select Distribution group to copy members from" -PassThru 
+        IF ($Copy_DL.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("No Distribution group seleceted")}
+        ELSE {
+            $Members = (Get-DistributionGroupMember -Identity $Copy_DL).name
+            FOREACH($Member in $Members) {
+            Add-DistributionGroupMember -Identity $DL -Member $Member -ErrorAction SilentlyContinue 
+                }
+            $TextBox_Output.AppendText("Members added to $DL Group")
+            }
+        } CATCH  { Write-OutError }
+    }
+}
+
+# Removes selceted distribution group members 
+function Remove-DL_Members {    
+    
+    IF ($ComboBox_Distributionlist.SelectedItem -eq $null) {
+        Set-Output_DistributionlistNull
+    } ELSE {
+    TRY {
+        
+        $DL = $ComboBox_Distributionlist.Text.ToString()
+        Clear-Output
+        $Members = (Get-DistributionGroupMember $DL | Out-GridView  -Title "Select Member(s) to remove from $DL" -PassThru).name 
+        IF ($Members.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("No Members seleceted")}
+        ELSE {
+            FOREACH($Member in $Members) {            
+            Remove-DistributionGroupMember -Identity $DL -Member $Member -Confirm:$false -ErrorAction SilentlyContinue 
+                }
+            $TextBox_Output.AppendText("Members removed from $DL Group") 
+            
+            }
+        } CATCH { Write-OutError } 
+    }
+}
+
+# Removes all distribution group members 
+function Remove-DL_Members_all {    
+    
+    IF ($ComboBox_Distributionlist.SelectedItem -eq $null) {
+        Set-Output_DistributionlistNull
+    } ELSE {
+    TRY {
+        $DL = $ComboBox_Distributionlist.Text.ToString()
+        Clear-Output
+        
+        $UserPrompt = new-object -comobject wscript.shell
+        $Answer = $UserPrompt.popup("   Remove All $DL Members?", 0, "Remove Members", 0x4 + 0x10)
+        IF ($Answer -eq 6) {
+            $Members = (Get-DistributionGroupMember $DL ).name 
+                            FOREACH($Member in $Members) {            
+            Remove-DistributionGroupMember -Identity $DL -Member $Member -Confirm:$false -ErrorAction SilentlyContinue 
+                }
+            $TextBox_Output.AppendText("All Members removed from $DL Group") 
+            
+            } ELSE { Write-Cancelled } 
+ 
+        } CATCH { Write-OutError }
+    }
+}
+
+# Sets managed by for distribution group 
+# See details see https://docs.microsoft.com/en-us/powershell/module/exchange/set-distributiongroup?view=exchange-ps
+function Set_DL_Manger {    
+    
+    IF ($ComboBox_Distributionlist.SelectedItem -eq $null) {
+        Set-Output_DistributionlistNull
+    } ELSE {
+
+    $DL = $ComboBox_Distributionlist.SelectedItem.ToString()
+    TRY {
+            Clear-Output  
+            $Manage = $Exchange_Mailboxes | Out-GridView  -Title "Select Member to Manage $DL" -PassThru 
+            Set-DistributionGroup -Identity $DL -ManagedBy $Manage -ErrorAction stop
+            $TextBox_Output.AppendText("$Manage can now Modify $DL Group") 
+      
+        } CATCH { Write-OutError }
+    }
+}
+
+# Sets distribution list to hidden from global address list or makes invisible if hidden
+function Set-Dl_ToHidden {    
+    
+    IF ($ComboBox_Distributionlist.SelectedItem -eq $null) {
+        Set-Output_DistributionlistNull
+    } ELSE {
+    TRY {
+        Clear-Output
+        $DL = $ComboBox_Distributionlist.SelectedItem.ToString()
+        $Result  = (Get-DistributionGroup $DL).HiddenFromAddressListsEnabled
+            
+        SWITCH ($Result) { 
+            
+        false { Set-DistributionGroup -Identity $DL -HiddenFromAddressListsEnabled $true ; $TextBox_Output.text = "$DL to is now hidden from global address list" }
+        true { Set-DistributionGroup -Identity $DL -HiddenFromAddressListsEnabled $false ; $TextBox_Output.text = "$DL to is now visble in global address list"  }
+            
+            }
+
+        } CATCH { Write-OutError }
+    }
+} 
+
+#Removes distribution group 
+function Remove_DL {    
+    
+    IF ($ComboBox_Distributionlist.SelectedItem -eq $null) {
+        Set-Output_DistributionlistNull
+    } ELSE {
+        $DL = $ComboBox_Distributionlist.SelectedItem.ToString()
+        TRY {
+            $UserPrompt = new-object -comobject wscript.shell
+            $Answer = $UserPrompt.popup("   Delete $DL Distribution list?", 0, "Remove Distribution list", 0x4 + 0x10)
+    
+            IF ($Answer -eq 6) {
+                Clear-Output
+                
+                Remove-DistributionGroup -Identity $DL -Confirm:$false -ErrorAction Stop 
+
+                $ComboBox_Distributionlist.Text = $Null
+                $Script:Exchange_DistributionGroups -ne $DL
+                [void]$ComboBox_Mailbox.Items.remove($DL)
+                [void]$ComboBox_Mailbox.AutoCompleteCustomSource.remove($DL) 
+                $TextBox_Output.text = "Distribution list $DL is now Deleted"
+                Save-Exchangedata
+            
+            } ELSE { Write-Cancelled } 
+                    
+        } CATCH { Write-OutError }
+    }
+}
+
 
 #===================== Menu Functions ======================
 
-
+# Exports alist of each mailbox that has full access permissions to it and Each object that has full permissions 
 function Export-FullAccessListToCSV {
 
     $StatusBarLabel.text = "  Export Mailbox FullAccess List to CSV..."
@@ -3237,7 +3444,7 @@ function Export-FullAccessListToCSV {
             $TextBox_Output.AppendText("Exported to $SaveOut")
         } 
 
-       Else {
+       ELSE {
             Clear-Output
             Set-StatusBarReady
             Write-OutInfo
@@ -3246,6 +3453,8 @@ function Export-FullAccessListToCSV {
     
 }
 
+# Show size of each database 
+# Note that this is not 100% accurate unless the databases are dismounted and compacted 
 function Get-MailboxDatabase_size {
 
     Get-MailboxDatabase -Status | Select Name, DatabaseSize, AvailableNewMailboxSpace | Sort-Object -Descending AvailableNewMailboxSpace
@@ -3493,7 +3702,7 @@ $ListBox_Windows.Items.AddRange(@(
     "Invoke Group policy update"
     "Network Properties"
     "Optional Features"
-    "Registry Editor"
+    "RegisTRY Editor"
     "Reliability Monitor"
     "Remote Desktop"
     "Services"
@@ -3529,10 +3738,10 @@ $Button_Ipconfiginfo = New-Object System.Windows.Forms.Button -Property @{
     FlatStyle       = "Flat"
 }
 
-$Button_Get_wifiPassword = New-Object System.Windows.Forms.Button -Property @{
+$Button_Get_wIFiPassword = New-Object System.Windows.Forms.Button -Property @{
     Location        = "155,255"
     Size            = "50,37"
-    #Text            = "Get_wifiPassword"
+    #Text            = "Get_wIFiPassword"
     FlatStyle       = "Flat"
 }
 
@@ -3560,14 +3769,14 @@ $Button_WindowsAction = New-Object System.Windows.Forms.Button -Property @{
 $Button_GetComputerinfo.FlatAppearance.BorderSize = 0
 $Button_GetSysteminfo.FlatAppearance.BorderSize = 0
 $Button_Ipconfiginfo.FlatAppearance.BorderSize = 0
-$Button_Get_wifiPassword.FlatAppearance.BorderSize = 0
+$Button_Get_wIFiPassword.FlatAppearance.BorderSize = 0
 $Button_TextToWave.FlatAppearance.BorderSize = 0
 $Button_Get_FolderACL.FlatAppearance.BorderSize = 0
 $Button_WindowsAction.FlatAppearance.BorderSize = 0
 $Button_GetComputerinfo.Image = [System.IconExtractor]::Extract("Imageres.dll", 70, $true)
 $Button_GetSysteminfo.Image = [System.IconExtractor]::Extract("Imageres.dll", 143, $true)
 $Button_Ipconfiginfo.Image = [System.IconExtractor]::Extract("Shell32.dll", 18, $true)
-$Button_Get_wifiPassword.Image = [System.IconExtractor]::Extract("Imageres.dll", 330, $true)
+$Button_Get_wIFiPassword.Image = [System.IconExtractor]::Extract("Imageres.dll", 330, $true)
 $Button_TextToWave.Image = [System.IconExtractor]::Extract("Shell32.dll", 172, $true)
 $Button_Get_FolderACL.Image = [System.IconExtractor]::Extract("Shell32.dll", 158, $true)
 $Button_WindowsAction.Image = $Icon_OK
@@ -3576,7 +3785,7 @@ $Button_WindowsAction.Image = $Icon_OK
 $Tooltip_GetComputerinfo              = New-Object System.Windows.Forms.ToolTip
 $Tooltip_GetSysteminfo                = New-Object System.Windows.Forms.ToolTip
 $tooltip_Ipconfiginfo                 = New-Object System.Windows.Forms.ToolTip
-$tooltip_Get_wifiPassword             = New-Object System.Windows.Forms.ToolTip 
+$tooltip_Get_wIFiPassword             = New-Object System.Windows.Forms.ToolTip 
 $Tooltip_TextToWave                   = New-Object System.Windows.Forms.ToolTip
 $Tooltip_Get_FolderACL                = New-Object System.Windows.Forms.ToolTip
 $Tooltip_WindowsAction                = New-Object System.Windows.Forms.ToolTip
@@ -3584,7 +3793,7 @@ $Tooltip_WindowsAction                = New-Object System.Windows.Forms.ToolTip
 $Tooltip_GetComputerinfo.SetToolTip($Button_GetComputerinfo, "Show Computer info")
 $Tooltip_GetSysteminfo.SetToolTip($Button_GetSysteminfo, "Show System info")
 $Tooltip_Ipconfiginfo.SetToolTip($Button_Ipconfiginfo, "Show IP config")
-$tooltip_Get_wifiPassword.SetToolTip($Button_Get_wifiPassword, "Show Wifi Passwords")
+$tooltip_Get_wIFiPassword.SetToolTip($Button_Get_wIFiPassword, "Show WIFi Passwords")
 $Tooltip_TextToWave.SetToolTip($Button_TextToWave, "Open TextToWave")
 $Tooltip_Get_FolderACL.SetToolTip($Button_Get_FolderACL, "Open GetFolderACL")
 $Tooltip_WindowsAction.SetToolTip($Button_WindowsAction, "Run/Start selected option")
@@ -3596,7 +3805,7 @@ $ListBox_windows.add_KeyDown({IF($_.keycode -eq "Space"){ Start-WindowsApp }})
 $Button_GetSysteminfo.add_Click({ Get-SystemInfo_Output })
 $Button_GetComputerinfo.add_Click({ Get-ComputerInfo_Output })
 $Button_Ipconfiginfo.add_Click({ Get-IpconfigInfo_Output })
-$Button_Get_wifiPassword.add_Click({ Get-WifiPassword })
+$Button_Get_wIFiPassword.add_Click({ Get-WIFiPassword })
 $Button_TextToWave.add_Click({ Start-TexttoWave })
 $Button_Get_FolderACL.add_Click({ Start-GetFolderACL })
 $Button_WindowsAction.add_Click({ Start-WindowsApp })
@@ -3605,7 +3814,7 @@ $GroupBox_Windows.Controls.AddRange(@(
     $ListBox_windows
     $Button_GetComputerinfo 
     $Button_GetSysteminfo
-    $Button_Get_wifiPassword
+    $Button_Get_wIFiPassword
     $Button_Ipconfiginfo
     $Button_TextToWave
     $Button_Get_FolderACL
@@ -3631,7 +3840,7 @@ $ListBox_WindowServer = New-Object System.Windows.Forms.ListBox -Property @{
 }
 
 # Add Items to listbox
-Foreach($Tool in $Admin_Tools.BaseName){[void]$ListBox_WindowServer.Items.Add($Tool)}
+FOREACH($Tool in $Admin_Tools.BaseName){[void]$ListBox_WindowServer.Items.Add($Tool)}
 
 
 $Button_InstallRsat = New-Object System.Windows.Forms.Button -Property @{
@@ -3707,7 +3916,7 @@ $ListBox_ControlPanel = New-Object System.Windows.Forms.ListBox -Property @{
 }
 
 $ControlPanelItem = (Get-ControlPanelItem).Name | Sort-Object
-foreach($Item in $ControlPanelItem) {$ListBox_ControlPanel.Items.AddRange($Item)} 
+FOREACH($Item in $ControlPanelItem) {$ListBox_ControlPanel.Items.AddRange($Item)} 
 
 $Button_Godmode = New-Object System.Windows.Forms.Button -Property @{
     Location       = "5,450"
@@ -4318,7 +4527,7 @@ $Button_EnableMailBox = New-Object System.Windows.Forms.Button -Property @{
 $Button_MailboxAction = New-Object System.Windows.Forms.Button -Property @{
     Location    = "350,260"
     Size        = "50,37"
-    FlatStyle     = "Flat"
+    FlatStyle   = "Flat"
 }
 
 # Button Icons & Appearance
@@ -4348,6 +4557,7 @@ $GroupBox_Mailbox.Controls.AddRange(@(
     $ListBox_Mailbox
     $Button_EnableMailBox
     $Button_MailboxAction
+
 ))
 
 # Distribution list GroupBox
@@ -4375,35 +4585,61 @@ $ListBox_Distributionlist = New-Object System.Windows.Forms.ListBox -Property @{
 
 
 $ListBox_Distributionlist.Items.AddRange(@(
-    "Distribution Group info"                         
-    "List all members"                                
-    "Add members"                                    
-    "Remove members"                                   
-    "Set Owner"                                     
-    "Hide/un-hide form global address list"            
+
+    "Distribution Group info"
+    "List all members"
+    "Add members"
+    "Copy members"
+    "Remove members"
+    "Remove all members"
+    "Set Owner"
+    "Hide/un-hide form global address list"
     "Remove Distribution Group"     
+
 ))
 
+# Buttons
+$Button_NewDistributionlist = New-Object System.Windows.Forms.Button -Property @{
+    Location       = "5,150"
+    Size           = "50,37"
+    FlatStyle      = "Flat"
+}
+
+
 $Button_DistributionlistAction = New-Object System.Windows.Forms.Button -Property @{
-    Location = "273,150"
-    Size = "128,37"
+    Location  = "350,150"
+    Size      = "50,37"
     FlatStyle = "Flat"
 }
 
+
 # Button Icons & Appearance
+$Button_NewDistributionlist.FlatAppearance.BorderSize = 0
+$Button_NewDistributionlist.Image = [System.IconExtractor]::Extract("Shell32.dll", 264, $true)
+
+
 $Button_DistributionlistAction.FlatAppearance.BorderSize = 0
 $Button_DistributionlistAction.Image = $Icon_OK
 
+# ToolTips
+$Tooltip_NewDistributionlist       = New-Object System.Windows.Forms.ToolTip
+$Tooltip_DistributionlistAction    = New-Object System.Windows.Forms.ToolTip 
+
+$Tooltip_EnableMailBox.SetToolTip($Button_NewDistributionlist, "New Distribution list")
+$Tooltip_MailboxAction.SetToolTip($Button_DistributionlistAction, "Run/Start selected option")
+
 # controls
-$ComboBox_Distributionlist.add_TextChanged({  })
-$ListBox_Distributionlist.add_MouseDoubleClick({  })
-$ListBox_Distributionlist.add_KeyDown({IF($_.keycode -eq "Enter"){  }})
-$ListBox_Distributionlist.add_KeyDown({IF($_.keycode -eq "Space"){  }})
-$Button_DistributionlistAction.add_Click({ })
+$ComboBox_Distributionlist.add_TextChanged({ Get-DL_info  })
+$ListBox_Distributionlist.add_MouseDoubleClick({ Start-Distributionlist_Action  })
+$ListBox_Distributionlist.add_KeyDown({IF($_.keycode -eq "Enter"){ Start-Distributionlist_Action }})
+$ListBox_Distributionlist.add_KeyDown({IF($_.keycode -eq "Space"){ Start-Distributionlist_Action }})
+$Button_NewDistributionlist.add_Click({ New-DL })
+$Button_DistributionlistAction.add_Click({ Start-Distributionlist_Action })
 
 
 $GroupBox_Distributionlist.Controls.AddRange(@(
     
+    $Button_NewDistributionlist    
     $ComboBox_Distributionlist
     $ListBox_Distributionlist
     $Button_DistributionlistAction
@@ -4870,7 +5106,7 @@ IF (test-path "$env:PUBLIC\Ultimate Administrator Console\Settings.xml") {
     $StatusBar.BackColor                          = "$Red,$Green,$Blue" 
 
 
-} Else {
+} ELSE {
 
 ### Forecolor
     $TrackBar_TextColourRed.Value     = 255
