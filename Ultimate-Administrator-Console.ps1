@@ -88,7 +88,7 @@ $RSAT_info = @"
 "@
 
 # AD 
-$AD_Forest       = $null
+$AD_Forest      = $null
 $AD_Domain      = $null
 $AD_Users       = $null
 $AD_Computers   = $null
@@ -507,7 +507,7 @@ Function Stop-LocalProcess {
         Clear-Output
         $Process =  (Get-Process | Out-GridView -PassThru -Title "Select Process to stop").name 
         IF($Process.Length -eq '0')  { Write-OutInfo ; $TextBox_Output.text = "No Process Selected"}
-        ELSE { Stop-Process -Name $Process -Force -ErrorAction Stop ; $TextBox_Output.text = "Stopping $Process service" }
+        ELSE { Stop-Process -Name $Process -Force -ErrorAction Stop ; $TextBox_Output.text = "Stopping $Process Process" }
     
     } CATCH { Write-OutError }
 } 
@@ -1754,6 +1754,7 @@ Function Remove-AD_UserfromAllGroups {
     }
 }
 
+# remotes user form selected group
 Function Remove-AD_UserfromGroup {
     
     IF ($ComboBox_Users.SelectedItem -eq $null) {
@@ -1791,7 +1792,7 @@ Function Move-AD_User {
         TRY {
             Clear-Output
             $ORG = $AD_OUs | Out-GridView -PassThru -Title "Select Organizational Unit"
-            IF ($list.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("No Organizational Unit selected")}
+            IF ($ORG.Length -eq '0' ) {Write-OutInfo ; $TextBox_Output.AppendText("No Organizational Unit selected")}
             ELSE {$User = $ComboBox_Users.SelectedItem.ToString() 
                 $ORG_move = $ORG.CanonicalName
                 $User_Move = Get-ADuser -Identity $ComboBox_Users.SelectedItem -Properties * | select DistinguishedName 
@@ -2012,7 +2013,9 @@ Function Get-AD_ComputerMembers {
         TRY {
             Clear-Output
             $Computer = $ComboBox_Computers.SelectedItem.ToString()
-            $TextBox_Output.text = Get-ADComputer $Computer -Properties * | FOREACH-Object {($_.memberof | Get-ADGroup | Select-Object -ExpandProperty Name)} | Format-List | Out-String -Width 2147483647
+            $results = Get-ADComputer $Computer -Properties * | FOREACH-Object {($_.memberof | Get-ADGroup | Select-Object -ExpandProperty Name)} 
+            IF( $results.Length -eq '0' )  { Write-OutInfo ; $TextBox_Output.text = "$Computer is not a member of any groups"}
+            ELSE {$TextBox_Output.text = Get-ADComputer $Computer -Properties * | FOREACH-Object {($_.memberof | Get-ADGroup | Select-Object -ExpandProperty Name)} | Format-List | Out-String -Width 2147483647}
         } CATCH { Write-OutError }
     }
 }
@@ -3055,7 +3058,7 @@ function Set-Mailbox_Outofoffice {
 
         } ELSE { 
         
-            Set-MailboxAutoReplyConfiguration -Identity $Mailbox -AutoReplyState "Disabled"
+            Set-MailboxAutoReplyConfiguration -Identity $Mailbox -AutoReplyState "Disabled" -ExternalMessage $null –InternalMessage $null
             $TextBox_Output.text = "$Mailbox Out of office Message has been removed"
 
             }              
@@ -3214,7 +3217,7 @@ TRY {
     IF($Name.Length -eq '0'){ Write-Cancelled } # ; $TextBox_Output.text = "`n`n Name cannot have 0 Characters"}
     ELSE { 
     
-        New-DistributionGroup -Name $Name -ErrorAction Stop 
+        New-DistributionGroup -Name $Name -SamAccountName $Name -ErrorAction Stop 
         Start-Sleep 0.2
         $Script:Exchange_DistributionGroups += $Name
         [void]$ComboBox_Distributionlist.Items.add($Name)
