@@ -3092,7 +3092,7 @@ function Set-Mailbox_Type {
                 { $Result.Name -eq 'Equipment' }  { $Type = 'Equipment' }
                 { $Result.Name -eq 'Room'      }  { $Type = 'Room'      }
             }   
-            IF ($Member.Length -eq '0')  { Write-OutInfo ; $TextBox_Output.text = "No type Selected"}
+            IF ($Result.Length -eq '0')  { Write-OutInfo ; $TextBox_Output.text = "No type Selected"}
             ELSE {
                 Set-mailbox $Mailbox -type $Type -Confirm:$false
                 $TextBox_Output.text = "Convering $Mailbox to $Type" 
