@@ -14,11 +14,6 @@ Requirements for the software
 1. Run EXE as Admin 
 2. Installed RSAT via install button
     
-## Built With
-
-  - PowerShell ISE
-  - Packaged as EXE with Win-PS2EXE.exe
-
 ## Authors
 
 - Theo Bird aka Bedlem55
