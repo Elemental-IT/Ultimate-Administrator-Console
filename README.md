@@ -16,10 +16,8 @@ Requirements for the software
     
 ## Authors
 
-- Theo Bird aka Bedlem55
+- Theo Bird 
 
-## Acknowledgments
 
-- François-Xavier Cat creator of LazyWinAdmin who is the insparation for Ultimate-Administrator-Console
 
 
