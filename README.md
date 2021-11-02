@@ -1,7 +1,7 @@
 # Ultimate-Administrator-Console
 This is tool created mostly in PowerShell to provide extended functionality to Active Directory exchange and other services and systems
 
-![USC](https://1drv.ms/u/s!AnszHJaWxaBIgfcte0fPwT8OQnZJyQ?e=PenlAl)
+
 
 # Getting Started
 
