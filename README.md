@@ -1,7 +1,7 @@
 # Ultimate-Administrator-Console
 This is tool has been created in PowerShell ISE to provide extended functionality to Active Directory exchange and other services and systems
 
-![UAC](https://github.com/Elemental-IT/Ultimate-Administrator-Console/blob/master/Images/Readme.jpg)
+![UAC](https://github.com/Elemental-IT/Ultimate-Administrator-Console/blob/master/Images/UAC_screen.png)
 
 # Getting Started
 
