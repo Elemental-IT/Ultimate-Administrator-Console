@@ -6,7 +6,7 @@ The ultimate resource for system administration
 .DESCRIPTION
 This is a generalised tool created mostly in PowerShell to provide extended functionality too Active Directory exchange and other services and systems
 .NOTES
-Exchange an Active Directory tabs will save XML data “$env:PUBLIC\Ultimate Administrator Console” This is to recall data quickly as pulling this information can take a minute or so.
+Exchange an Active Directory tabs will save XML data â€œ$env:PUBLIC\Ultimate Administrator Consoleâ€ This is to recall data quickly as pulling this information can take a minute or so.
 please see YouTube channel under about for full tutorial https://www.youtube.com/channel/UC8fXbspZUdX4MUFlBIueuNw
 Author Theo bird (Bedlem55)
   
@@ -1977,7 +1977,7 @@ Function Get-WIFiPassword {
 
     netsh wlan show profile | Select-Object -Skip 3| Where-Object -FilterScript {($_ -like '*:*')} | FOREACH-Object -Process {
         $NetworkName = $_.Split(':')[-1].trim()
-        $PasswordDetection = $(netsh wlan show profile name =$NetworkName key=clear) | Where-Object -FilterScript {($_ -like '*contenu de la clé*') -or ($_ -like '*key content*')}
+        $PasswordDetection = $(netsh wlan show profile name =$NetworkName key=clear) | Where-Object -FilterScript {($_ -like '*contenu de la clÃ©*') -or ($_ -like '*key content*')}
 
        $WIFi = New-Object -TypeName PSObject -Property @{
             NetworkName = $NetworkName
@@ -3978,7 +3978,7 @@ function Set-Mailbox_Outofoffice {
 
         } ELSE { 
         
-            Set-MailboxAutoReplyConfiguration -Identity $Mailbox -AutoReplyState "Disabled" -ExternalMessage $null –InternalMessage $null
+            Set-MailboxAutoReplyConfiguration -Identity $Mailbox -AutoReplyState "Disabled" -ExternalMessage $null “InternalMessage $null"
             $TextBox_Output.text = "$Mailbox Out of office Message has been removed"
 
             }              
